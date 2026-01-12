@@ -1,11 +1,23 @@
+import { useAuth } from '@/auth/AuthProvider'
 import { Link } from '@tanstack/react-router'
 
-import { Home, Menu, X } from 'lucide-react'
+import {
+  CheckSquare,
+  Home,
+  Hospital,
+  Menu,
+  Notebook,
+  Pill,
+  Users,
+  X,
+} from 'lucide-react'
 import { useState } from 'react'
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
-  
+  const auth = useAuth()
+  const userRole = auth.user?.role
+
   return (
     <>
       <header className="p-4 flex items-center bg-gray-800 text-white shadow-lg">
@@ -27,7 +39,7 @@ export default function Header() {
         }`}
       >
         <div className="flex items-center justify-between p-4 border-b border-gray-700">
-          <h2 className="text-xl font-bold">Navigation</h2>
+          <h2 className="text-xl font-bold">{userRole}</h2>
           <button
             onClick={() => setIsOpen(false)}
             className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
@@ -37,7 +49,24 @@ export default function Header() {
           </button>
         </div>
 
-        <nav className="flex-1 p-4 overflow-y-auto">
+        {userRole === 'caregiver' && (
+          <nav className="p-2 overflow-y-auto">
+            <Link
+              to="/"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
+              activeProps={{
+                className:
+                  'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
+              }}
+            >
+              <CheckSquare size={20} />
+              <span className="font-medium">Tasks</span>
+            </Link>
+          </nav>
+        )}
+
+        <nav className="p-2 overflow-y-auto">
           <Link
             to="/"
             onClick={() => setIsOpen(false)}
@@ -47,10 +76,42 @@ export default function Header() {
                 'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
             }}
           >
-            <Home size={20} />
-            <span className="font-medium">Home</span>
+            <Notebook size={20} />
+            <span className="font-medium">Journal</span>
           </Link>
         </nav>
+
+        <nav className="p-2 overflow-y-auto">
+          <Link
+            to="/"
+            onClick={() => setIsOpen(false)}
+            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
+            activeProps={{
+              className:
+                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
+            }}
+          >
+            <Pill size={20} />
+            <span className="font-medium">Medication</span>
+          </Link>
+        </nav>
+
+        {userRole === 'caregiver' && (
+          <nav className="p-2 overflow-y-auto">
+            <Link
+              to="/"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
+              activeProps={{
+                className:
+                  'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
+              }}
+            >
+              <Users size={20} />
+              <span className="font-medium">Recipients</span>
+            </Link>
+          </nav>
+        )}
       </aside>
     </>
   )

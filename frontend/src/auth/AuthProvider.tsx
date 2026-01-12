@@ -7,7 +7,7 @@ type AuthContextType = {
   loginAction: (data: AuthResponse) => Promise<void>
 }
 
-const initialAuthContext: AuthContextType = {
+const defaultAuthContext: AuthContextType = {
   user: {
     id: 'test-user',
     role: 'caregiver',
@@ -18,7 +18,7 @@ const initialAuthContext: AuthContextType = {
   },
 }
 
-const AuthContext = createContext<AuthContextType>(initialAuthContext)
+const AuthContext = createContext<AuthContextType>(defaultAuthContext)
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
@@ -30,11 +30,13 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem('token', data.token)
   }
 
-  const authValue: AuthContextType = {
-    user,
-    token,
-    loginAction,
-  }
+  // const authValue: AuthContextType = {
+  //   user,
+  //   token,
+  //   loginAction,
+  // }
+
+  const authValue = defaultAuthContext
 
   return (
     <AuthContext.Provider value={authValue}>{children}</AuthContext.Provider>
