@@ -54,7 +54,8 @@ export interface JournalEntry {
 export interface Comment {
   id: string;
   journalEntryId: string;
-  caregiverId: string;
+  authorId: string;
+  authorRole: UserRole;
   content: string;
   createdAt: Date;
 }
@@ -284,21 +285,24 @@ export const comments: Comment[] = [
   {
     id: 'comment-1',
     journalEntryId: 'journal-1',
-    caregiverId: 'caregiver-1',
+    authorId: 'caregiver-1',
+    authorRole: 'caregiver',
     content: 'That\'s wonderful to hear, Robert! Those moments of clarity are precious. Keep up the positive attitude!',
     createdAt: new Date(2026, 0, 13, 20, 0),
   },
   {
     id: 'comment-2',
     journalEntryId: 'journal-2',
-    caregiverId: 'caregiver-1',
+    authorId: 'caregiver-1',
+    authorRole: 'caregiver',
     content: 'I understand it\'s frustrating, Emily. Remember that progress isn\'t always linear. Let\'s talk to your PT about adjusting the exercises.',
     createdAt: new Date(2026, 0, 13, 17, 30),
   },
   {
     id: 'comment-3',
     journalEntryId: 'journal-4',
-    caregiverId: 'caregiver-1',
+    authorId: 'caregiver-1',
+    authorRole: 'caregiver',
     content: 'It\'s okay to feel worried, Robert. Let\'s set up a designated spot for your glasses. Maybe we can get a bright case to make them easier to find?',
     createdAt: new Date(2026, 0, 12, 21, 45),
   },
