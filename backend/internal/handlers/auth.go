@@ -3,10 +3,13 @@ package handlers
 import (
 	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 
+	"hack4good/internal/auth"
 	"hack4good/internal/models"
 )
 
@@ -114,3 +117,58 @@ func (h AuthHandler) Signup(c *gin.Context) {
 	c.JSON(http.StatusCreated, createdUser)
 }
 
+type loginRequest struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required,min=8"`
+}
+
+type loginResponse struct {
+	Token string     `json:"token"`
+	User  userPublic `json:"user"`
+}
+
+// Public view of user object
+type userPublic struct {
+	ID       uint            `json:"id"`
+	Username string          `json:"username"`
+	Name     string          `json:"name"`
+	Role     models.UserRole `json:"role"`
+}
+
+func (h AuthHandler) Login(c *gin.Context) {
+	var req loginRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	username := strings.ToLower(strings.TrimSpace(req.Username))
+
+	var u models.User
+	if err := h.DB.First(&u, "username = ?", username).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid username or password"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(req.Password)); err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid username or password"})
+		return
+	}
+
+	token, err := auth.SignToken(u.ID, string(u.Role))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not sign token"})
+		return
+	}
+
+	c.JSON(http.StatusOK, loginResponse{
+		Token: token,
+		User: userPublic{
+			ID: u.ID, Username: u.Username, Name: u.Name, Role: u.Role,
+		},
+	})
+}

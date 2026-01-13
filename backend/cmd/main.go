@@ -19,6 +19,10 @@ func main() {
 	r := gin.New()
 	r.Use(gin.Logger(), gin.Recovery())
 
+	authHandler := handlers.AuthHandler{DB: DB}
+	r.POST("/login", authHandler.Login)
+	r.POST("/signup", authHandler.Signup)
+
 	recipientHandler := handlers.RecipientHandler{DB: DB}
 	r.POST("/recipients", recipientHandler.Create)
 	r.GET("/recipients", recipientHandler.List)
@@ -48,7 +52,7 @@ func main() {
 	r.GET("/todos/:id", todoHandler.GetByID)
 	r.PUT("/todos/:id", todoHandler.Update)
 	r.DELETE("/todos/:id", todoHandler.Delete)
-	
+
 
 	if err := r.Run(":8080"); err != nil {
 		log.Fatalf("server failed: %v", err)
