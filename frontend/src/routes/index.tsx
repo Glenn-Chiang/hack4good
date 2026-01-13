@@ -1,20 +1,32 @@
-import { Link } from '@tanstack/react-router';
-import { useRecipients, useTodos, useAllJournalEntries } from '../lib/queries';
-import { useAuth } from '../lib/auth';
-import { CheckSquare, BookOpen, Users, AlertCircle } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
-import { format } from 'date-fns';
-import { MoodIcon } from '../components/MoodIcon';
+import { Link } from "@tanstack/react-router";
+import { useRecipients, useTodos, useAllJournalEntries } from "../lib/queries";
+import { useAuth } from "../lib/auth";
+import { CheckSquare, BookOpen, Users, AlertCircle } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Badge } from "../components/ui/badge";
+import { format } from "date-fns";
+import { MoodIcon } from "../components/MoodIcon";
 
 export function Dashboard() {
   const { currentUser } = useAuth();
-  const { data: recipients, isLoading: recipientsLoading } = useRecipients(currentUser?.id || '');
-  const { data: todos, isLoading: todosLoading } = useTodos(currentUser?.id || '');
-  const { data: journalEntries, isLoading: journalLoading } = useAllJournalEntries();
+  const { data: recipients, isLoading: recipientsLoading } = useRecipients(
+    currentUser?.id || ""
+  );
+  const { data: todos, isLoading: todosLoading } = useTodos(
+    currentUser?.id || ""
+  );
+  const { data: journalEntries, isLoading: journalLoading } =
+    useAllJournalEntries();
 
-  const urgentTodos = todos?.filter(t => !t.completed && t.priority === 'high') || [];
-  const upcomingTodos = todos?.filter(t => !t.completed).slice(0, 5) || [];
+  const urgentTodos =
+    todos?.filter((t) => !t.completed && t.priority === "high") || [];
+  const upcomingTodos = todos?.filter((t) => !t.completed).slice(0, 5) || [];
   const recentJournals = journalEntries?.slice(0, 5) || [];
 
   return (
@@ -32,7 +44,9 @@ export function Dashboard() {
             <Users className="w-4 h-4 text-gray-500" />
           </CardHeader>
           <CardContent>
-            <div className="font-semibold">{recipientsLoading ? '...' : recipients?.length || 0}</div>
+            <div className="font-semibold">
+              {recipientsLoading ? "..." : recipients?.length || 0}
+            </div>
             <p className="text-xs text-gray-500">Active care relationships</p>
           </CardContent>
         </Card>
@@ -43,12 +57,18 @@ export function Dashboard() {
             <CheckSquare className="w-4 h-4 text-gray-500" />
           </CardHeader>
           <CardContent>
-            <div className="font-semibold">{todosLoading ? '...' : todos?.filter(t => !t.completed).length || 0}</div>
+            <div className="font-semibold">
+              {todosLoading
+                ? "..."
+                : todos?.filter((t) => !t.completed).length || 0}
+            </div>
             <p className="text-xs text-gray-500">
               {urgentTodos.length > 0 && (
-                <span className="text-orange-600">{urgentTodos.length} urgent</span>
+                <span className="text-orange-600">
+                  {urgentTodos.length} urgent
+                </span>
               )}
-              {urgentTodos.length === 0 && 'No urgent tasks'}
+              {urgentTodos.length === 0 && "No urgent tasks"}
             </p>
           </CardContent>
         </Card>
@@ -59,7 +79,9 @@ export function Dashboard() {
             <BookOpen className="w-4 h-4 text-gray-500" />
           </CardHeader>
           <CardContent>
-            <div className="font-semibold">{journalLoading ? '...' : journalEntries?.length || 0}</div>
+            <div className="font-semibold">
+              {journalLoading ? "..." : journalEntries?.length || 0}
+            </div>
             <p className="text-xs text-gray-500">Total entries</p>
           </CardContent>
         </Card>
@@ -80,12 +102,15 @@ export function Dashboard() {
           <CardContent>
             <div className="space-y-3">
               {urgentTodos.map((todo) => (
-                <div key={todo.id} className="bg-white p-3 rounded-lg border border-orange-200">
+                <div
+                  key={todo.id}
+                  className="bg-white p-3 rounded-lg border border-orange-200"
+                >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <p className="text-sm">{todo.title}</p>
                       <p className="text-xs text-gray-500 mt-1">
-                        {format(todo.dueDate, 'MMM d, yyyy h:mm a')}
+                        {format(todo.dueDate, "MMM d, yyyy h:mm a")}
                       </p>
                     </div>
                     <Badge variant="destructive">High Priority</Badge>
@@ -111,14 +136,21 @@ export function Dashboard() {
                 <p className="text-sm text-gray-500">No upcoming tasks</p>
               )}
               {upcomingTodos.map((todo) => (
-                <div key={todo.id} className="flex items-start justify-between pb-3 border-b last:border-0 last:pb-0">
+                <div
+                  key={todo.id}
+                  className="flex items-start justify-between pb-3 border-b last:border-0 last:pb-0"
+                >
                   <div className="flex-1">
                     <p className="text-sm">{todo.title}</p>
                     <p className="text-xs text-gray-500 mt-1">
-                      {format(todo.dueDate, 'MMM d, yyyy h:mm a')}
+                      {format(todo.dueDate, "MMM d, yyyy h:mm a")}
                     </p>
                   </div>
-                  <Badge variant={todo.priority === 'high' ? 'destructive' : 'secondary'}>
+                  <Badge
+                    variant={
+                      todo.priority === "high" ? "destructive" : "secondary"
+                    }
+                  >
                     {todo.priority}
                   </Badge>
                 </div>
@@ -137,7 +169,9 @@ export function Dashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Recent Journal Entries</CardTitle>
-            <CardDescription>Latest updates from your recipients</CardDescription>
+            <CardDescription>
+              Latest updates from your recipients
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -145,19 +179,26 @@ export function Dashboard() {
                 <p className="text-sm text-gray-500">No journal entries yet</p>
               )}
               {recentJournals.map((entry) => {
-                const recipient = recipients?.find(r => r.id === entry.recipientId);
+                const recipient = recipients?.find(
+                  (r) => r.id === entry.recipientId
+                );
                 return (
-                  <div key={entry.id} className="pb-3 border-b last:border-0 last:pb-0">
+                  <div
+                    key={entry.id}
+                    className="pb-3 border-b last:border-0 last:pb-0"
+                  >
                     <div className="flex items-start justify-between mb-2">
                       <p className="text-sm">{recipient?.name}</p>
                       <div className="flex items-center gap-2">
                         <MoodIcon mood={entry.mood} size={16} />
                         <span className="text-xs text-gray-500">
-                          {format(entry.createdAt, 'MMM d, h:mm a')}
+                          {format(entry.createdAt, "MMM d, h:mm a")}
                         </span>
                       </div>
                     </div>
-                    <p className="text-sm text-gray-600 line-clamp-2">{entry.content}</p>
+                    <p className="text-sm text-gray-600 line-clamp-2">
+                      {entry.content}
+                    </p>
                   </div>
                 );
               })}
@@ -189,12 +230,17 @@ export function Dashboard() {
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
                     <span className="font-semibold text-blue-700">
-                      {recipient.name.split(' ').map(n => n[0]).join('')}
+                      {recipient.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")}
                     </span>
                   </div>
                   <div>
                     <p className="text-sm">{recipient.name}</p>
-                    <p className="text-xs text-gray-500">{recipient.age} years old</p>
+                    <p className="text-xs text-gray-500">
+                      {recipient.age} years old
+                    </p>
                   </div>
                 </div>
               </Link>
