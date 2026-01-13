@@ -9,16 +9,10 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
 import { Route as TasksIndexRouteImport } from './routes/tasks/index'
 import { Route as RecipientsIndexRouteImport } from './routes/recipients/index'
 import { Route as JournalIndexRouteImport } from './routes/journal/index'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const TasksIndexRoute = TasksIndexRouteImport.update({
   id: '/tasks/',
   path: '/tasks/',
@@ -36,34 +30,30 @@ const JournalIndexRoute = JournalIndexRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
   '/journal': typeof JournalIndexRoute
   '/recipients': typeof RecipientsIndexRoute
   '/tasks': typeof TasksIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
   '/journal': typeof JournalIndexRoute
   '/recipients': typeof RecipientsIndexRoute
   '/tasks': typeof TasksIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
   '/journal/': typeof JournalIndexRoute
   '/recipients/': typeof RecipientsIndexRoute
   '/tasks/': typeof TasksIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/journal' | '/recipients' | '/tasks'
+  fullPaths: '/journal' | '/recipients' | '/tasks'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/journal' | '/recipients' | '/tasks'
-  id: '__root__' | '/' | '/journal/' | '/recipients/' | '/tasks/'
+  to: '/journal' | '/recipients' | '/tasks'
+  id: '__root__' | '/journal/' | '/recipients/' | '/tasks/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
   JournalIndexRoute: typeof JournalIndexRoute
   RecipientsIndexRoute: typeof RecipientsIndexRoute
   TasksIndexRoute: typeof TasksIndexRoute
@@ -71,13 +61,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/tasks/': {
       id: '/tasks/'
       path: '/tasks'
@@ -103,7 +86,6 @@ declare module '@tanstack/react-router' {
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
   JournalIndexRoute: JournalIndexRoute,
   RecipientsIndexRoute: RecipientsIndexRoute,
   TasksIndexRoute: TasksIndexRoute,
