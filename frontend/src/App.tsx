@@ -1,17 +1,25 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { RouterProvider, createRouter, createRootRoute, createRoute, Outlet, useNavigate, redirect } from '@tanstack/react-router';
-import { useEffect } from 'react';
-import { Layout } from './components/Layout';
-import { Dashboard } from './routes/index';
-import { TodoList } from './routes/todos';
-import { Journal } from './routes/journal';
-import { Recipients } from './routes/recipients';
-import { RecipientProfile } from './routes/recipient-profile';
-import { RecipientDashboard } from './routes/recipient-dashboard';
-import { Login } from './routes/login';
-import { Signup } from './routes/signup';
-import { Toaster } from './components/ui/sonner';
-import { AuthProvider, useAuth } from './lib/auth';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  RouterProvider,
+  createRouter,
+  createRootRoute,
+  createRoute,
+  Outlet,
+  useNavigate,
+} from "@tanstack/react-router";
+import { useEffect } from "react";
+import { Layout } from "./components/Layout";
+import { Dashboard } from "./routes/index";
+import { TodoList } from "./routes/todos";
+import { Journal } from "./routes/journal";
+import { Recipients } from "./routes/recipients";
+import { RecipientProfile } from "./routes/recipient-profile";
+import { RecipientDashboard } from "./routes/recipient-dashboard";
+import { CaregiverProfile } from "./routes/caregiver-profile";
+import { Login } from "./routes/login";
+import { Signup } from "./routes/signup";
+import { Toaster } from "./components/ui/sonner";
+import { AuthProvider, useAuth } from "./lib/auth";
 
 // Create a query client
 const queryClient = new QueryClient({
@@ -24,15 +32,21 @@ const queryClient = new QueryClient({
 });
 
 // Protected route wrapper component
-function ProtectedRoute({ children, allowedRole }: { children: React.ReactNode; allowedRole?: 'caregiver' | 'recipient' }) {
+function ProtectedRoute({
+  children,
+  allowedRole,
+}: {
+  children: React.ReactNode;
+  allowedRole?: "caregiver" | "recipient";
+}) {
   const { currentUser, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate({ to: '/login' });
+      navigate({ to: "/login" });
     } else if (allowedRole && currentUser?.role !== allowedRole) {
-      navigate({ to: '/' });
+      navigate({ to: "/" });
     }
   }, [isAuthenticated, currentUser, allowedRole, navigate]);
 
@@ -56,7 +70,7 @@ function RootWrapper() {
   }
 
   // Recipient gets simplified dashboard
-  if (currentUser?.role === 'recipient') {
+  if (currentUser?.role === "recipient") {
     return <Outlet />;
   }
 
@@ -76,14 +90,14 @@ const rootRoute = createRootRoute({
 // Login route (public)
 const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/login',
+  path: "/login",
   component: Login,
 });
 
 // Signup route (public)
 const signupRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/signup',
+  path: "/signup",
   component: Signup,
 });
 
@@ -94,7 +108,7 @@ function MainDashboard() {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate({ to: '/login' });
+      navigate({ to: "/login" });
     }
   }, [isAuthenticated, navigate]);
 
@@ -102,7 +116,7 @@ function MainDashboard() {
     return null;
   }
 
-  if (currentUser?.role === 'recipient') {
+  if (currentUser?.role === "recipient") {
     return <RecipientDashboard />;
   }
 
@@ -111,14 +125,14 @@ function MainDashboard() {
 
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/',
+  path: "/",
   component: MainDashboard,
 });
 
 // Caregiver-only routes
 const todosRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/todos',
+  path: "/todos",
   component: () => (
     <ProtectedRoute allowedRole="caregiver">
       <TodoList />
@@ -128,7 +142,7 @@ const todosRoute = createRoute({
 
 const journalRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/journal',
+  path: "/journal",
   component: () => (
     <ProtectedRoute allowedRole="caregiver">
       <Journal />
@@ -138,7 +152,7 @@ const journalRoute = createRoute({
 
 const recipientsRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/recipients',
+  path: "/recipients",
   component: () => (
     <ProtectedRoute allowedRole="caregiver">
       <Recipients />
@@ -148,10 +162,20 @@ const recipientsRoute = createRoute({
 
 const recipientProfileRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/recipients/$recipientId',
+  path: "/recipients/$recipientId",
   component: () => (
     <ProtectedRoute allowedRole="caregiver">
       <RecipientProfile />
+    </ProtectedRoute>
+  ),
+});
+
+const caregiverProfileRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/caregiver-profile",
+  component: () => (
+    <ProtectedRoute allowedRole="caregiver">
+      <CaregiverProfile />
     </ProtectedRoute>
   ),
 });
@@ -165,13 +189,14 @@ const routeTree = rootRoute.addChildren([
   journalRoute,
   recipientsRoute,
   recipientProfileRoute,
+  caregiverProfileRoute,
 ]);
 
 // Create the router
 const router = createRouter({ routeTree });
 
 // Register the router for type safety
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface Register {
     router: typeof router;
   }

@@ -4,7 +4,6 @@ import { useAuth } from '../lib/auth';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Textarea } from '../components/ui/textarea';
-import { Badge } from '../components/ui/badge';
 import { MoodIcon } from '../components/MoodIcon';
 import { format } from 'date-fns';
 import { MessageCircle, Mic, ChevronDown, ChevronUp } from 'lucide-react';
