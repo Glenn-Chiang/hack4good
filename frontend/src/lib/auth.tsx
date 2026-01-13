@@ -3,9 +3,9 @@ import {
   useContext,
   useState,
   useEffect,
-  ReactNode,
+  type ReactNode,
 } from "react";
-import { UserRole, User, users } from "./mock-data";
+import { type User, users } from "./mock-data";
 
 interface AuthContextType {
   currentUser: User | null;
