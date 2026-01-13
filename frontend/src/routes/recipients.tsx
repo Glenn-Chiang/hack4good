@@ -1,56 +1,77 @@
-import { useState } from 'react';
-import { Link } from '@tanstack/react-router';
-import { useRecipients, useAllRecipients, useAssignRecipient, useCareRelationship } from '../lib/queries';
-import { useAuth } from '../lib/auth';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { Button } from '../components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '../components/ui/dialog';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { Badge } from '../components/ui/badge';
-import { Users, Plus, Search, Clock, CheckCircle2 } from 'lucide-react';
-import { toast } from 'sonner';
-import { getCareRelationship } from '../lib/mock-data';
+import { useState } from "react";
+import { Link } from "@tanstack/react-router";
+import {
+  useRecipients,
+  useAllRecipients,
+  useAssignRecipient,
+} from "../lib/queries";
+import { useAuth } from "../lib/auth";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogDescription,
+} from "../components/ui/dialog";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { Badge } from "../components/ui/badge";
+import { Users, Plus, Search, Clock } from "lucide-react";
+import { toast } from "sonner";
+import { getCareRelationship } from "../lib/mock-data";
 
 export function Recipients() {
   const { currentUser } = useAuth();
-  const { data: recipients, isLoading } = useRecipients(currentUser?.id || '');
+  const { data: recipients, isLoading } = useRecipients(currentUser?.id || "");
   const { data: allRecipients } = useAllRecipients();
   const assignRecipient = useAssignRecipient();
-  
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Filter recipients that are not already assigned to this caregiver
-  const availableRecipients = allRecipients?.filter(
-    r => {
-      const relationship = getCareRelationship(currentUser?.id || '', r.id);
-      return !relationship || relationship.status === 'rejected';
-    }
-  ) || [];
+  const availableRecipients =
+    allRecipients?.filter((r) => {
+      const relationship = getCareRelationship(currentUser?.id || "", r.id);
+      return (
+        !relationship ||
+        relationship.status === "rejected" ||
+        relationship.status === "pending"
+      );
+    }) || [];
 
   // Filter based on search query
-  const filteredRecipients = availableRecipients.filter(r =>
+  const filteredRecipients = availableRecipients.filter((r) =>
     r.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleSendRequest = (recipientId: string) => {
     assignRecipient.mutate(
-      { recipientId, caregiverId: currentUser?.id || '' },
+      { recipientId, caregiverId: currentUser?.id || "" },
       {
         onSuccess: () => {
-          toast.success('Care request sent! Waiting for recipient to accept.');
-          setSearchQuery('');
+          toast.success("Care request sent! Waiting for recipient to accept.");
+          setSearchQuery("");
         },
         onError: (error) => {
-          toast.error(error instanceof Error ? error.message : 'Failed to send request');
+          toast.error(
+            error instanceof Error ? error.message : "Failed to send request"
+          );
         },
       }
     );
   };
 
   const getRelationshipStatus = (recipientId: string) => {
-    return getCareRelationship(currentUser?.id || '', recipientId);
+    return getCareRelationship(currentUser?.id || "", recipientId);
   };
 
   if (isLoading) {
@@ -75,7 +96,8 @@ export function Recipients() {
             <DialogHeader>
               <DialogTitle>Send Care Request</DialogTitle>
               <DialogDescription>
-                Search for recipients and send them a care request. They will need to accept before you can access their information.
+                Search for recipients and send them a care request. They will
+                need to accept before you can access their information.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
@@ -96,31 +118,43 @@ export function Recipients() {
               <div className="max-h-96 overflow-y-auto space-y-2">
                 {filteredRecipients.length === 0 && (
                   <p className="text-center text-gray-500 py-8">
-                    {searchQuery ? 'No recipients found matching your search' : 'No available recipients'}
+                    {searchQuery
+                      ? "No recipients found matching your search"
+                      : "No available recipients"}
                   </p>
                 )}
                 {filteredRecipients.map((recipient) => {
                   const relationship = getRelationshipStatus(recipient.id);
-                  const isPending = relationship?.status === 'pending';
-                  
+                  const isPending = relationship?.status === "pending";
+
                   return (
-                    <Card key={recipient.id} className="hover:bg-gray-50 transition-colors">
+                    <Card
+                      key={recipient.id}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
                               <span className="text-blue-700">
-                                {recipient.name.split(' ').map(n => n[0]).join('')}
+                                {recipient.name
+                                  .split(" ")
+                                  .map((n) => n[0])
+                                  .join("")}
                               </span>
                             </div>
                             <div>
                               <p className="font-medium">{recipient.name}</p>
                               <p className="text-sm text-gray-500">
                                 {recipient.age} years old
-                                {recipient.condition && ` • ${recipient.condition}`}
+                                {recipient.condition &&
+                                  ` • ${recipient.condition}`}
                               </p>
                               {isPending && (
-                                <Badge variant="outline" className="mt-1 text-xs">
+                                <Badge
+                                  variant="outline"
+                                  className="mt-1 text-xs"
+                                >
                                   <Clock className="w-3 h-3 mr-1" />
                                   Request Pending
                                 </Badge>
@@ -132,7 +166,7 @@ export function Recipients() {
                             disabled={assignRecipient.isPending || isPending}
                             size="sm"
                           >
-                            {isPending ? 'Pending' : 'Send Request'}
+                            {isPending ? "Pending" : "Send Request"}
                           </Button>
                         </div>
                       </CardContent>
@@ -147,24 +181,34 @@ export function Recipients() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {recipients?.map((recipient) => (
-          <Card key={recipient.id} className="hover:shadow-lg transition-shadow">
+          <Card
+            key={recipient.id}
+            className="hover:shadow-lg transition-shadow"
+          >
             <CardHeader>
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
                   <span className="text-xl text-blue-700">
-                    {recipient.name.split(' ').map(n => n[0]).join('')}
+                    {recipient.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")}
                   </span>
                 </div>
                 <div className="flex-1">
                   <CardTitle className="text-lg">{recipient.name}</CardTitle>
-                  <p className="text-sm text-gray-500">{recipient.age} years old</p>
+                  <p className="text-sm text-gray-500">
+                    {recipient.age} years old
+                  </p>
                 </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
                 <p className="text-sm text-gray-500">Condition</p>
-                <p className="text-sm">{recipient.condition || 'Not specified'}</p>
+                <p className="text-sm">
+                  {recipient.condition || "Not specified"}
+                </p>
               </div>
               <Link to={`/recipients/${recipient.id}`}>
                 <Button className="w-full">View Profile</Button>
@@ -178,7 +222,10 @@ export function Recipients() {
             <CardContent className="py-12 text-center">
               <Users className="w-12 h-12 mx-auto text-gray-400 mb-4" />
               <p className="text-gray-500 mb-4">No recipients assigned</p>
-              <p className="text-sm text-gray-400">Click "Add Recipient" to search for recipients and send care requests</p>
+              <p className="text-sm text-gray-400">
+                Click "Add Recipient" to search for recipients and send care
+                requests
+              </p>
             </CardContent>
           </Card>
         )}

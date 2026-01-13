@@ -16,12 +16,12 @@ import {
   comments,
   users,
   careRelationships,
-  Todo,
-  JournalEntry,
-  Comment,
-  MoodType,
-  User,
-  CareRelationship,
+  type Todo,
+  type JournalEntry,
+  type Comment,
+  type MoodType,
+  type User,
+  type CareRelationship,
 } from './mock-data';
 
 // Simulate API delay
