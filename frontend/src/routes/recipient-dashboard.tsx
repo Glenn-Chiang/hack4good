@@ -31,7 +31,7 @@ import {
   useAddComment,
 } from "../lib/queries";
 import { MoodIcon } from "../components/MoodIcon";
-import type { MoodType } from "../lib/mock-data";
+import type { MoodType } from "../lib/types";
 import {
   Smile,
   Frown,
@@ -52,7 +52,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { getUserById } from "../lib/mock-data";
+import { getUserById } from "../lib/types";
 
 const moodOptions: {
   type: MoodType;

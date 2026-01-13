@@ -19,7 +19,7 @@ import { format } from "date-fns";
 import { MessageCircle, Mic, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 import { get } from "http";
-import { getUserById } from "@/lib/mock-data";
+import { getUserById } from "@/lib/types";
 
 export function Journal() {
   const { currentUser } = useAuth();

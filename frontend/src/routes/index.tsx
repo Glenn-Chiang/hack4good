@@ -15,14 +15,20 @@ import { MoodIcon } from "../components/MoodIcon";
 
 export function Dashboard() {
   const { currentUser } = useAuth();
-  const { data: recipients, isLoading: recipientsLoading } = useRecipients(currentUser?.id || '');
-  const { data: todos, isLoading: todosLoading } = useTodos(currentUser?.id || '');
-  const { data: allJournalEntries, isLoading: journalLoading } = useAllJournalEntries();
+  const { data: recipients, isLoading: recipientsLoading } = useRecipients(
+    currentUser?.id || ""
+  );
+  const { data: todos, isLoading: todosLoading } = useTodos(
+    currentUser?.id || ""
+  );
+  const { data: allJournalEntries, isLoading: journalLoading } =
+    useAllJournalEntries();
 
-  const acceptedRecipientIds = new Set(recipients?.map(r => r.id) || []);
-  const journalEntries = allJournalEntries?.filter(entry =>
+  const acceptedRecipientIds = new Set(recipients?.map((r) => r.id) || []);
+  const journalEntries =
+    allJournalEntries?.filter((entry) =>
       acceptedRecipientIds.has(entry.recipientId)
-  ) || [];
+    ) || [];
 
   const urgentTodos =
     todos?.filter((t) => !t.completed && t.priority === "high") || [];
@@ -32,7 +38,7 @@ export function Dashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h2>Welcome back, {currentUser.name}</h2>
+        <h2>Welcome back, {currentUser?.name}</h2>
         <p className="text-gray-500">Here's what's happening today</p>
       </div>
 
