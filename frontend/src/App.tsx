@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { RouterProvider, createRouter, createRootRoute, createRoute, Outlet, useNavigate } from '@tanstack/react-router';
+import { RouterProvider, createRouter, createRootRoute, createRoute, Outlet, useNavigate, redirect } from '@tanstack/react-router';
 import { useEffect } from 'react';
 import { Layout } from './components/Layout';
 import { Dashboard } from './routes/index';
@@ -87,9 +87,20 @@ const signupRoute = createRoute({
   component: Signup,
 });
 
-// Main dashboard - redirects based on role
+// Main dashboard - redirects based on role or to login if not authenticated
 function MainDashboard() {
-  const { currentUser } = useAuth();
+  const { currentUser, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate({ to: '/login' });
+    }
+  }, [isAuthenticated, navigate]);
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   if (currentUser?.role === 'recipient') {
     return <RecipientDashboard />;
@@ -101,11 +112,7 @@ function MainDashboard() {
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
-  component: () => (
-    <ProtectedRoute>
-      <MainDashboard />
-    </ProtectedRoute>
-  ),
+  component: MainDashboard,
 });
 
 // Caregiver-only routes
