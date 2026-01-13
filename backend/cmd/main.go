@@ -35,12 +35,20 @@ func main() {
 	r.DELETE("/journal-entries/:id", journalHandler.Delete)
 
 	
-	h := handlers.CommentHandler{DB: DB}
-	r.POST("/comments", h.Create)
-	r.GET("/comments", h.List)
-	r.GET("/comments/:id", h.GetByID)
-	r.PUT("/comments/:id", h.Update)
-	r.DELETE("/comments/:id", h.Delete)
+	commentHandler := handlers.CommentHandler{DB: DB}
+	r.POST("/comments", commentHandler.Create)
+	r.GET("/comments", commentHandler.List)
+	r.GET("/comments/:id", commentHandler.GetByID)
+	r.PUT("/comments/:id", commentHandler.Update)
+	r.DELETE("/comments/:id", commentHandler.Delete)
+
+	todoHandler := handlers.TodoHandler{DB: DB}
+	r.POST("/todos", todoHandler.Create)
+	r.GET("/todos", todoHandler.List) // supports ?recipientId=123&caregiverId=123&completed=true&priority=high
+	r.GET("/todos/:id", todoHandler.GetByID)
+	r.PUT("/todos/:id", todoHandler.Update)
+	r.DELETE("/todos/:id", todoHandler.Delete)
+	
 
 	if err := r.Run(":8080"); err != nil {
 		log.Fatalf("server failed: %v", err)
