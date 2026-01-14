@@ -24,6 +24,8 @@ export function Layout({ children }: LayoutProps) {
 
   const firstName = currentUser?.name?.split(" ").filter(Boolean)[0] || "";
 
+  console.log(currentUser)
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header (match RecipientDashboard style) */}

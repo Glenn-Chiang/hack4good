@@ -86,7 +86,7 @@ export function Signup() {
       signUpData.caregiver = {};
     }
 
-    signup.mutate(signUpData, {
+    signup.mutateAsync(signUpData, {
       onSuccess: () => {
         toast.success("Account created successfully! Please login.");
         navigate({ to: "/login" });

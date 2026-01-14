@@ -5,11 +5,11 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { type User } from "@/types/auth";
+import { type LoginResponse, type User } from "@/types/auth";
 
 interface AuthContextType {
   currentUser: User | null;
-  login: (user: User) => void;
+  login: (res: LoginResponse) => void;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -39,8 +39,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [currentUser]);
 
-  const login = (user: User) => {
-    setCurrentUser(user);
+  const login = (res: LoginResponse) => {
+    setCurrentUser(res.user);
   };
 
   const logout = () => {

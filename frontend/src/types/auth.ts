@@ -7,7 +7,7 @@ export type User = {
   role: UserRole;
 };
 
-export type AuthResponse = {
+export type LoginResponse = {
   user: User;
   token: string;
 };
