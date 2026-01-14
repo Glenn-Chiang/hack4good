@@ -1,68 +1,65 @@
 // Tanstack Query hooks for data fetching
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  getRecipientsByCaregiver,
-  getTodosByCaregiver,
-  getJournalsByRecipient,
-  getCommentsByJournalEntry,
-  getUserById,
-  getAllRecipients,
-  getCareRelationship,
-  getPendingRequestsForRecipient,
-  getCaregiversForRecipient,
-  todos,
-  journalEntries,
-  comments,
-  users,
-  careRelationships,
-  type Todo,
-  type JournalEntry,
-  type Comment,
-  type MoodType,
-  type User,
-  type CareRelationship,
-} from './mock-data';
+import type {
+  Todo,
+  JournalEntry,
+  Comment,
+  MoodType,
+  User,
+  CareRelationship,
+} from '../types/types.ts';
 
-// Simulate API delay
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+// ======================
+// Backend API helper
+// ======================
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+async function api<T>(path: string, options?: RequestInit): Promise<T> {
+  const res = await fetch(`${BACKEND_URL}${path}`, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    ...options,
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text || res.statusText);
+  }
+
+  return res.json();
+}
+
+// ======================
 // Users
-export const useRecipients = (caregiverId: string) => {
-  return useQuery({
-    queryKey: ['recipients', caregiverId],
-    queryFn: async () => {
-      await delay(300);
-      return getRecipientsByCaregiver(caregiverId);
-    },
-  });
-};
+// ======================
 
-export const useUser = (userId: string) => {
-  return useQuery({
-    queryKey: ['user', userId],
-    queryFn: async () => {
-      await delay(200);
-      return getUserById(userId);
-    },
+export const useRecipients = (caregiverId: string) =>
+  useQuery({
+    queryKey: ['recipients', caregiverId],
+    queryFn: () => api<User[]>(`/caregivers/${caregiverId}/recipients`),
   });
-};
+
+export const useUser = (userId: string) =>
+  useQuery({
+    queryKey: ['user', userId],
+    queryFn: () => api<User>(`/users/${userId}`),
+  });
 
 export const useUpdateUser = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async (updatedUser: Partial<User> & { id: string }) => {
-      await delay(300);
-      const userIndex = users.findIndex(u => u.id === updatedUser.id);
-      if (userIndex !== -1) {
-        users[userIndex] = { ...users[userIndex], ...updatedUser };
-        return users[userIndex];
-      }
-      throw new Error('User not found');
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['user', data.id] });
+    mutationFn: (data: Partial<User> & { id: string }) =>
+      api<User>(`/users/${data.id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      }),
+    onSuccess: (user) => {
+      queryClient.invalidateQueries({ queryKey: ['user', user.id] });
       queryClient.invalidateQueries({ queryKey: ['recipients'] });
     },
   });
@@ -70,58 +67,38 @@ export const useUpdateUser = () => {
 
 export const useAddRecipient = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async (newRecipient: Omit<User, 'id' | 'role'>) => {
-      await delay(300);
-      const recipient: User = {
-        ...newRecipient,
-        id: `recipient-${Date.now()}`,
-        role: 'recipient',
-      };
-      users.push(recipient);
-      return recipient;
-    },
+    mutationFn: (data: Omit<User, 'id' | 'role'>) =>
+      api<User>(`/recipients`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recipients'] });
     },
   });
 };
 
-export const useAllRecipients = () => {
-  return useQuery({
+export const useAllRecipients = () =>
+  useQuery({
     queryKey: ['all-recipients'],
-    queryFn: async () => {
-      await delay(300);
-      return getAllRecipients();
-    },
+    queryFn: () => api<User[]>(`/recipients`),
   });
-};
+
+// ======================
+// Care Relationships
+// ======================
 
 export const useAssignRecipient = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async ({ recipientId, caregiverId }: { recipientId: string; caregiverId: string }) => {
-      await delay(300);
-      
-      // Check if relationship already exists
-      const existing = getCareRelationship(caregiverId, recipientId);
-      if (existing) {
-        throw new Error('Request already sent or relationship already exists');
-      }
-      
-      // Create a pending relationship request
-      const relationship: CareRelationship = {
-        id: `rel-${Date.now()}`,
-        caregiverId,
-        recipientId,
-        status: 'pending',
-        requestedAt: new Date(),
-      };
-      careRelationships.push(relationship);
-      return relationship;
-    },
+    mutationFn: (data: { caregiverId: string; recipientId: string }) =>
+      api<CareRelationship>(`/care-relationships`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recipients'] });
       queryClient.invalidateQueries({ queryKey: ['all-recipients'] });
@@ -132,49 +109,34 @@ export const useAssignRecipient = () => {
 
 export const useSignup = () => {
   return useMutation({
-    mutationFn: async (newUser: Omit<User, 'id'>) => {
-      await delay(300);
-      
-      // Check if username already exists
-      const existingUser = users.find(u => u.username.toLowerCase() === newUser.username.toLowerCase());
-      if (existingUser) {
-        throw new Error('This username is already taken');
-      }
-      
-      const user: User = {
-        ...newUser,
-        id: `${newUser.role}-${Date.now()}`,
-      };
-      users.push(user);
-      return user;
-    },
+    mutationFn: (newUser: Omit<User, 'id'>) =>
+      api<User>(`/auth/signup`, {
+        method: 'POST',
+        body: JSON.stringify(newUser),
+      }),
   });
 };
 
-export const usePendingRequests = (recipientId: string) => {
-  return useQuery({
+
+export const usePendingRequests = (recipientId: string) =>
+  useQuery({
     queryKey: ['pending-requests', recipientId],
-    queryFn: async () => {
-      await delay(200);
-      return getPendingRequestsForRecipient(recipientId);
-    },
+    queryFn: () =>
+      api<CareRelationship[]>(`/recipients/${recipientId}/pending-requests`),
   });
-};
 
 export const useRespondToRequest = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async ({ requestId, status }: { requestId: string; status: 'accepted' | 'rejected' }) => {
-      await delay(300);
-      const relationshipIndex = careRelationships.findIndex(r => r.id === requestId);
-      if (relationshipIndex !== -1) {
-        careRelationships[relationshipIndex].status = status;
-        careRelationships[relationshipIndex].respondedAt = new Date();
-        return careRelationships[relationshipIndex];
-      }
-      throw new Error('Request not found');
-    },
+    mutationFn: (data: {
+      requestId: string;
+      status: 'accepted' | 'rejected';
+    }) =>
+      api<CareRelationship>(`/care-relationships/${data.requestId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: data.status }),
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pending-requests'] });
       queryClient.invalidateQueries({ queryKey: ['recipients'] });
@@ -183,49 +145,59 @@ export const useRespondToRequest = () => {
   });
 };
 
-export const useCareRelationship = (caregiverId: string, recipientId: string) => {
-  return useQuery({
+export const useCareRelationship = (
+  caregiverId: string,
+  recipientId: string
+) =>
+  useQuery({
     queryKey: ['care-relationship', caregiverId, recipientId],
-    queryFn: async () => {
-      await delay(200);
-      return getCareRelationship(caregiverId, recipientId);
-    },
+    queryFn: () =>
+      api<CareRelationship | null>(
+        `/care-relationships?caregiverId=${caregiverId}&recipientId=${recipientId}`
+      ),
   });
-};
 
-export const useCaregiversForRecipient = (recipientId: string) => {
-  return useQuery({
+export const useNonCareGiversForRecipient = (recipientId: string) =>
+  useQuery({
+    queryKey: ['non-caregivers', recipientId],
+    queryFn: () =>
+      api<User[]>(`/recipients/${recipientId}/non-caregivers`),
+  });
+  
+
+export const useCaregiversForRecipient = (recipientId: string) =>
+  useQuery({
     queryKey: ['caregivers', recipientId],
-    queryFn: async () => {
-      await delay(200);
-      return getCaregiversForRecipient(recipientId);
-    },
+    queryFn: () =>
+      api<User[]>(`/recipients/${recipientId}/caregivers`),
   });
-};
 
+// ======================
 // Todos
-export const useTodos = (caregiverId: string) => {
-  return useQuery({
+// ======================
+
+export const useTodos = (caregiverId: string) =>
+  useQuery({
     queryKey: ['todos', caregiverId],
-    queryFn: async () => {
-      await delay(300);
-      return getTodosByCaregiver(caregiverId);
-    },
+    queryFn: () =>
+      api<Todo[]>(`/caregivers/${caregiverId}/todos`),
   });
-};
+
+export const useRecipientTodos = (recipientId: string) =>
+  useQuery({
+    queryKey: ['recipient-todos', recipientId],
+    queryFn: () =>
+      api<Todo[]>(`/recipients/${recipientId}/todos`),
+  });
 
 export const useToggleTodo = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async (todoId: string) => {
-      await delay(200);
-      const todo = todos.find(t => t.id === todoId);
-      if (todo) {
-        todo.completed = !todo.completed;
-      }
-      return todo;
-    },
+    mutationFn: (todoId: string) =>
+      api<Todo>(`/todos/${todoId}/toggle`, {
+        method: 'PATCH',
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['todos'] });
     },
@@ -234,66 +206,51 @@ export const useToggleTodo = () => {
 
 export const useAddTodo = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async (newTodo: Omit<Todo, 'id'>) => {
-      await delay(300);
-      const todo: Todo = {
-        ...newTodo,
-        id: `todo-${Date.now()}`,
-      };
-      todos.push(todo);
-      return todo;
-    },
+    mutationFn: (data: Omit<Todo, 'id'>) =>
+      api<Todo>(`/todos`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['todos'] });
     },
   });
 };
 
+// ======================
 // Journal Entries
-export const useJournalEntries = (recipientId: string) => {
-  return useQuery({
-    queryKey: ['journal-entries', recipientId],
-    queryFn: async () => {
-      await delay(300);
-      return getJournalsByRecipient(recipientId);
-    },
-  });
-};
+// ======================
 
-export const useAllJournalEntries = () => {
-  return useQuery({
-    queryKey: ['all-journal-entries'],
-    queryFn: async () => {
-      await delay(300);
-      return journalEntries;
-    },
+export const useJournalEntries = (recipientId: string) =>
+  useQuery({
+    queryKey: ['journal-entries', recipientId],
+    queryFn: () =>
+      api<JournalEntry[]>(`/recipients/${recipientId}/journals`),
   });
-};
+
+export const useAllJournalEntries = () =>
+  useQuery({
+    queryKey: ['all-journal-entries'],
+    queryFn: () =>
+      api<JournalEntry[]>(`/journals`),
+  });
 
 export const useAddJournalEntry = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async (newEntry: {
+    mutationFn: (data: {
       recipientId: string;
       content: string;
       mood: MoodType;
       hasVoiceMessage?: boolean;
-    }) => {
-      await delay(300);
-      const entry: JournalEntry = {
-        id: `journal-${Date.now()}`,
-        recipientId: newEntry.recipientId,
-        content: newEntry.content,
-        mood: newEntry.mood,
-        createdAt: new Date(),
-        hasVoiceMessage: newEntry.hasVoiceMessage || false,
-      };
-      journalEntries.unshift(entry);
-      return entry;
-    },
+    }) =>
+      api<JournalEntry>(`/journals`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['journal-entries'] });
       queryClient.invalidateQueries({ queryKey: ['all-journal-entries'] });
@@ -301,41 +258,36 @@ export const useAddJournalEntry = () => {
   });
 };
 
+// ======================
 // Comments
-export const useComments = (journalEntryId: string) => {
-  return useQuery({
+// ======================
+
+export const useComments = (journalEntryId: string) =>
+  useQuery({
     queryKey: ['comments', journalEntryId],
-    queryFn: async () => {
-      await delay(200);
-      return getCommentsByJournalEntry(journalEntryId);
-    },
+    queryFn: () =>
+      api<Comment[]>(`/journals/${journalEntryId}/comments`),
   });
-};
 
 export const useAddComment = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async (newComment: {
+    mutationFn: (data: {
       journalEntryId: string;
       content: string;
       authorId: string;
       authorRole: 'caregiver' | 'recipient';
-    }) => {
-      await delay(300);
-      const comment: Comment = {
-        id: `comment-${Date.now()}`,
-        journalEntryId: newComment.journalEntryId,
-        authorId: newComment.authorId,
-        authorRole: newComment.authorRole,
-        content: newComment.content,
-        createdAt: new Date(),
-      };
-      comments.push(comment);
-      return comment;
-    },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['comments', variables.journalEntryId] });
+    }) =>
+      api<Comment>(`/comments`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    onSuccess: (_, vars) => {
+      queryClient.invalidateQueries({
+        queryKey: ['comments', vars.journalEntryId],
+      });
     },
   });
 };
+

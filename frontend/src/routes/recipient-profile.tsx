@@ -1,22 +1,34 @@
-import { Link, useParams } from '@tanstack/react-router';
-import { useUser, useTodos, useJournalEntries } from '../lib/queries';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
-import { Button } from '../components/ui/button';
-import { Badge } from '../components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { MoodIcon } from '../components/MoodIcon';
-import { ArrowLeft, CheckSquare, BookOpen, User, Calendar } from 'lucide-react';
-import { format } from 'date-fns';
+import { Link, useParams } from "@tanstack/react-router";
+import { useUser, useJournalEntries, useRecipientTodos } from "../lib/queries";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Badge } from "../components/ui/badge";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
+import { MoodIcon } from "../components/MoodIcon";
+import { ArrowLeft, CheckSquare, BookOpen, Calendar } from "lucide-react";
+import { format } from "date-fns";
 
 export function RecipientProfile() {
-  const { recipientId } = useParams({ from: '/recipients/$recipientId' });
+  const { recipientId } = useParams({ from: "/recipients/$recipientId" });
   const { data: recipient, isLoading: userLoading } = useUser(recipientId);
-  const { data: allTodos } = useTodos();
+  const { data: allTodos } = useRecipientTodos(recipientId);
   const { data: journalEntries } = useJournalEntries(recipientId);
 
-  const recipientTodos = allTodos?.filter(t => t.recipientId === recipientId) || [];
-  const activeTodos = recipientTodos.filter(t => !t.completed);
-  const completedTodos = recipientTodos.filter(t => t.completed);
+  const recipientTodos =
+    allTodos?.filter((t) => t.recipientId === recipientId) || [];
+  const activeTodos = recipientTodos.filter((t) => !t.completed);
+  const completedTodos = recipientTodos.filter((t) => t.completed);
 
   if (userLoading) {
     return <div>Loading...</div>;
@@ -44,7 +56,10 @@ export function RecipientProfile() {
           <div className="flex items-center gap-4">
             <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center">
               <span className="text-2xl text-blue-700">
-                {recipient.name.split(' ').map(n => n[0]).join('')}
+                {recipient.name
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")}
               </span>
             </div>
             <div className="flex-1">
@@ -57,7 +72,9 @@ export function RecipientProfile() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <p className="text-sm text-gray-500 mb-1">Condition</p>
-              <p className="text-sm">{recipient.condition || 'Not specified'}</p>
+              <p className="text-sm">
+                {recipient.condition || "Not specified"}
+              </p>
             </div>
             <div>
               <p className="text-sm text-gray-500 mb-1">Active Tasks</p>
@@ -159,15 +176,21 @@ export function RecipientProfile() {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <p className="text-sm">{todo.title}</p>
-                        <p className="text-xs text-gray-500 mt-1">{todo.description}</p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {todo.description}
+                        </p>
                       </div>
-                      <Badge variant={todo.priority === 'high' ? 'destructive' : 'secondary'}>
+                      <Badge
+                        variant={
+                          todo.priority === "high" ? "destructive" : "secondary"
+                        }
+                      >
                         {todo.priority}
                       </Badge>
                     </div>
                     <p className="text-xs text-gray-500 mt-2">
                       <Calendar className="w-3 h-3 inline mr-1" />
-                      {format(todo.dueDate, 'MMM d, yyyy h:mm a')}
+                      {format(todo.dueDate, "MMM d, yyyy h:mm a")}
                     </p>
                   </div>
                 ))}
@@ -184,10 +207,15 @@ export function RecipientProfile() {
               <CardContent>
                 <div className="space-y-3">
                   {completedTodos.map((todo) => (
-                    <div key={todo.id} className="p-3 border rounded-lg bg-gray-50">
-                      <p className="text-sm line-through text-gray-600">{todo.title}</p>
+                    <div
+                      key={todo.id}
+                      className="p-3 border rounded-lg bg-gray-50"
+                    >
+                      <p className="text-sm line-through text-gray-600">
+                        {todo.title}
+                      </p>
                       <p className="text-xs text-gray-500 mt-2">
-                        {format(todo.dueDate, 'MMM d, yyyy h:mm a')}
+                        {format(todo.dueDate, "MMM d, yyyy h:mm a")}
                       </p>
                     </div>
                   ))}
@@ -200,18 +228,22 @@ export function RecipientProfile() {
         <TabsContent value="journal" className="mt-6">
           <Card>
             <CardHeader>
-              <CardTitle>Journal Entries ({journalEntries?.length || 0})</CardTitle>
+              <CardTitle>
+                Journal Entries ({journalEntries?.length || 0})
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {journalEntries?.length === 0 && (
-                  <p className="text-sm text-gray-500">No journal entries yet</p>
+                  <p className="text-sm text-gray-500">
+                    No journal entries yet
+                  </p>
                 )}
                 {journalEntries?.map((entry) => (
                   <div key={entry.id} className="p-4 border rounded-lg">
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-sm text-gray-500">
-                        {format(entry.createdAt, 'MMM d, yyyy h:mm a')}
+                        {format(entry.createdAt, "MMM d, yyyy h:mm a")}
                       </span>
                       <MoodIcon mood={entry.mood} showLabel />
                     </div>
