@@ -22,6 +22,7 @@ func main() {
 		&models.Caregiver{},
 		&models.Recipient{},
 		&models.CaregiverRecipient{},
+		&models.CareRequest{},
 		&models.JournalEntry{},
 		&models.Comment{},
 		&models.Todo{},
@@ -51,6 +52,11 @@ func main() {
 
 	caregiverHandler := handlers.CaregiverHandler{DB: DB}
 	r.GET("/caregivers", caregiverHandler.List)
+
+	careRequestHandler := handlers.CareRequestHandler{DB: DB}
+	r.POST("/requests", careRequestHandler.CreateRequest)
+	r.GET("/recipients/:id/requests", careRequestHandler.ListRecipientRequests)
+	r.PATCH("/requests/:id", careRequestHandler.RespondToRequest)
 
 	journalHandler := handlers.JournalHandler{DB: DB}
 	r.POST("/journal-entries", journalHandler.Create)
