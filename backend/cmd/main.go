@@ -7,12 +7,22 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	_ = godotenv.Load()
+
 	DB := db.Connect()
 
-	if err := DB.AutoMigrate(&models.User{}, &models.Caregiver{}, &models.Recipient{}); err != nil {
+	if err := DB.AutoMigrate(
+		&models.User{},
+		&models.Caregiver{},
+		&models.Recipient{},
+		&models.JournalEntry{},
+		&models.Comment{},
+		&models.Todo{},
+	); err != nil {
 		log.Fatalf("migrate failed: %v", err)
 	}
 
