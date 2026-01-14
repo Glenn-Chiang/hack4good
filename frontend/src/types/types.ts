@@ -1,14 +1,16 @@
 import type { UserRole } from "./auth";
 
 export interface Todo {
-  id: string;
+  id: number;
   title: string;
   description: string;
-  dueDate: Date;
+  dueDate: string;
   completed: boolean;
-  recipientId: string;
-  caregiverId: string;
+  recipientId: number;
+  caregiverId: number;
   priority: 'low' | 'medium' | 'high';
+  createdAt: string;
+  updatedAt: string;
 }
 
 export type MoodType = 'happy' | 'sad' | 'neutral' | 'anxious' | 'excited';

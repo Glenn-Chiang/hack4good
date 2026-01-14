@@ -20,16 +20,18 @@ import {
 import { MoodIcon } from "../components/MoodIcon";
 import { ArrowLeft, CheckSquare, BookOpen, Calendar } from "lucide-react";
 import { format } from "date-fns";
-import { useRecipientTodos } from "../api/todos";
+import { useAuth } from "@/auth/AuthProvider";
+import { useTodos } from "@/api/todos";
 
 export function RecipientProfile() {
   const { recipientId } = useParams({ from: "/recipients/$recipientId" });
   const { data: recipient, isLoading: userLoading } = useGetUser(recipientId);
-  const { data: allTodos } = useRecipientTodos(recipientId);
+  const { data: allTodos } = useTodos(String(currentUser?.id || ""));
+  const rid = Number(recipientId);
+    
   const { data: journalEntries } = useJournalEntries(recipientId);
 
-  const recipientTodos =
-    allTodos?.filter((t) => t.recipientId === recipientId) || [];
+  const recipientTodos = allTodos?.filter((t) => t.recipientId === rid) || [];
   const activeTodos = recipientTodos.filter((t) => !t.completed);
   const completedTodos = recipientTodos.filter((t) => t.completed);
 
