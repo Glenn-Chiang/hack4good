@@ -66,37 +66,50 @@ export function TodoList() {
     priority: "medium" as "low" | "medium" | "high",
   });
 
-  const handleToggleTodo = (todoId: string) => {
+  const handleToggleTodo = (todoId: number) => {
     toggleTodo.mutate(todoId);
   };
 
-  const handleAddTodo = () => {
-    if (!newTodo.title || !newTodo.recipientId) {
-      toast.error("Please fill in all required fields");
-      return;
-    }
 
-    addTodo.mutate(
-      {
-        ...newTodo,
-        completed: false,
-        caregiverId: currentUser?.id || "",
-      },
-      {
-        onSuccess: () => {
-          toast.success("Task added successfully");
-          setIsDialogOpen(false);
-          setNewTodo({
-            title: "",
-            description: "",
-            recipientId: "",
-            dueDate: new Date(),
-            priority: "medium",
-          });
-        },
-      }
-    );
-  };
+ const handleAddTodo = () => {
+   if (!newTodo.title || !newTodo.recipientId) {
+     toast.error("Please fill in all required fields");
+     return;
+   }
+
+   const caregiverId = Number(currentUser?.id);
+   const recipientId = Number(newTodo.recipientId);
+
+   if (!caregiverId || !recipientId) {
+     toast.error("Invalid caregiver or recipient");
+     return;
+   }
+
+   addTodo.mutate(
+     {
+       title: newTodo.title,
+       description: newTodo.description || "(no description)",
+       caregiverId,
+       recipientId,
+       dueDate: newTodo.dueDate.toISOString(),
+       priority: newTodo.priority,
+     },
+     {
+       onSuccess: () => {
+         toast.success("Task added successfully");
+         setIsDialogOpen(false);
+         setNewTodo({
+           title: "",
+           description: "",
+           recipientId: "",
+           dueDate: new Date(),
+           priority: "medium",
+         });
+       },
+     }
+   );
+ };
+
 
   // Calendar view helpers
   const monthStart = startOfMonth(selectedDate);
@@ -164,7 +177,7 @@ export function TodoList() {
                 <Label htmlFor="recipient">Recipient *</Label>
                 <Select
                   value={newTodo.recipientId}
-                  onValueChange={(value) =>
+                  onValueChange={(value: string) =>
                     setNewTodo({ ...newTodo, recipientId: value })
                   }
                 >
@@ -245,7 +258,7 @@ export function TodoList() {
                 )}
                 {activeTodos.map((todo) => {
                   const recipient = recipients?.find(
-                    (r) => r.id === todo.recipientId
+                    (r) => Number(r.id) === todo.recipientId
                   );
                   return (
                     <div
@@ -301,7 +314,7 @@ export function TodoList() {
                 <div className="space-y-3">
                   {completedTodos.map((todo) => {
                     const recipient = recipients?.find(
-                      (r) => r.id === todo.recipientId
+                      (r) => Number(r.id) === todo.recipientId
                     );
                     return (
                       <div
