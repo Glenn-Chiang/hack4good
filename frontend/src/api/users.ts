@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { apiFetch } from "./index.ts";
-import type { CareRelationship, Recipient } from "@/types/users.ts";
+import type { CareRequest, Recipient } from "@/types/users.ts";
 import type { User } from "@/types/auth.ts";
 
 // ======================
@@ -44,37 +44,34 @@ export const useGetRecipientsByCaregiver = (caregiverId: string) =>
 export const useGetAllRecipients = () =>
   useQuery({
     queryKey: ["recipients"],
-    queryFn: () =>
-      apiFetch<Recipient[]>('/recipients'),
+    queryFn: () => apiFetch<Recipient[]>("/recipients"),
   });
 
 // ======================
-// Care Relationships
+// Care Requests
 // ======================
-
-export const useAssignRecipient = () => {
+export const useSendRequest = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (data: { caregiverId: string; recipientId: string }) =>
-      apiFetch<CareRelationship>(`/care-relationships`, {
+      apiFetch<CareRequest>(`/requests`, {
         method: "POST",
         body: JSON.stringify(data),
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["recipients"] });
-      queryClient.invalidateQueries({ queryKey: ["all-recipients"] });
       queryClient.invalidateQueries({ queryKey: ["pending-requests"] });
     },
   });
 };
 
-export const usePendingRequests = (recipientId: string) =>
+export const useGetPendingRequestsForRecipient = (recipientId: string) =>
   useQuery({
     queryKey: ["pending-requests", recipientId],
     queryFn: () =>
-      apiFetch<CareRelationship[]>(
-        `/recipients/${recipientId}/pending-requests`
+      apiFetch<CareRequest[]>(
+        `/recipients/${recipientId}/requests?status=pending`
       ),
   });
 
@@ -86,7 +83,7 @@ export const useRespondToRequest = () => {
       requestId: string;
       status: "accepted" | "rejected";
     }) =>
-      apiFetch<CareRelationship>(`/care-relationships/${data.requestId}`, {
+      apiFetch<CareRequest>(`/requests/${data.requestId}`, {
         method: "PATCH",
         body: JSON.stringify({ status: data.status }),
       }),
@@ -97,15 +94,6 @@ export const useRespondToRequest = () => {
     },
   });
 };
-
-export const useCareRelationship = (caregiverId: string, recipientId: string) =>
-  useQuery({
-    queryKey: ["care-relationship", caregiverId, recipientId],
-    queryFn: () =>
-      apiFetch<CareRelationship | null>(
-        `/care-relationships?caregiverId=${caregiverId}&recipientId=${recipientId}`
-      ),
-  });
 
 export const useCaregiversForRecipient = (recipientId: string) =>
   useQuery({

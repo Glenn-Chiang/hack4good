@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   useGetRecipientsByCaregiver,
-  useAssignRecipient,
-  useCareRelationship,
+  useSendRequest,
+  useGetRequest,
   useGetAllRecipients,
 } from "../api/users";
 import { useAuth } from "@/auth/AuthProvider";
@@ -33,7 +33,7 @@ export function Recipients() {
   const { data: recipients, isLoading } = useGetRecipientsByCaregiver(
     currentUser?.id || ""
   );
-  const assignRecipient = useAssignRecipient();
+  const assignRecipient = useSendRequest();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -42,8 +42,8 @@ export function Recipients() {
   const { data: availableRecipients = [] } = useGetAllRecipients();
 
   // Filter based on search query
-  const filteredRecipients = availableRecipients.filter((recipient) => 
-     recipient.user.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredRecipients = availableRecipients.filter((recipient) =>
+    recipient.user.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleSendRequest = (recipientId: string) => {
@@ -113,7 +113,7 @@ export function Recipients() {
                   </p>
                 )}
                 {filteredRecipients.map((recipient) => {
-                  const { data: relationship } = useCareRelationship(
+                  const { data: relationship } = useGetRequest(
                     currentUser?.id || "",
                     recipient.id
                   );
@@ -137,7 +137,9 @@ export function Recipients() {
                               </span>
                             </div>
                             <div>
-                              <p className="font-medium">{recipient.user.name}</p>
+                              <p className="font-medium">
+                                {recipient.user.name}
+                              </p>
                               <p className="text-sm text-gray-500">
                                 {recipient.age} years old
                                 {recipient.condition &&
@@ -189,7 +191,9 @@ export function Recipients() {
                   </span>
                 </div>
                 <div className="flex-1">
-                  <CardTitle className="text-lg">{recipient.user.name}</CardTitle>
+                  <CardTitle className="text-lg">
+                    {recipient.user.name}
+                  </CardTitle>
                   <p className="text-sm text-gray-500">
                     {recipient.age} years old
                   </p>

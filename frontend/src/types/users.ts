@@ -19,13 +19,13 @@ export interface Caregiver {
   user: User;
 }
 
-export type RelationshipStatus = "pending" | "accepted" | "rejected";
+export type CareRequestStatus = "pending" | "accepted" | "rejected";
 
-export interface CareRelationship {
+export interface CareRequest {
   id: string;
   caregiverId: string;
   recipientId: string;
-  status: RelationshipStatus;
+  status: CareRequestStatus;
   requestedAt: Date;
   respondedAt?: Date;
 }

@@ -22,9 +22,8 @@ import {
 import { useAuth } from "@/auth/AuthProvider";
 import {
   useUpdateUser,
-  usePendingRequests,
+  useGetPendingRequestsForRecipient,
   useCaregiversForRecipient,
-  
 } from "../api/users";
 import { MoodIcon } from "../components/MoodIcon";
 import type { MoodType } from "../types/types";
@@ -47,7 +46,12 @@ import {
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { RequestCard } from "@/components/RequestCard";
-import { useJournalEntries, useAddJournalEntry, useAddComment, useComments } from "@/api/journal";
+import {
+  useJournalEntries,
+  useAddJournalEntry,
+  useAddComment,
+  useComments,
+} from "@/api/journal";
 
 const moodOptions: {
   type: MoodType;
@@ -92,7 +96,9 @@ const moodOptions: {
 export function RecipientDashboard() {
   const { currentUser, logout } = useAuth();
   const { data: journalEntries } = useJournalEntries(currentUser?.id || "");
-  const { data: pendingRequests } = usePendingRequests(currentUser?.id || "");
+  const { data: pendingRequests } = useGetPendingRequestsForRecipient(
+    currentUser?.id || ""
+  );
   const { data: caregivers } = useCaregiversForRecipient(currentUser?.id || "");
   const addJournalEntry = useAddJournalEntry();
   const updateUser = useUpdateUser();
