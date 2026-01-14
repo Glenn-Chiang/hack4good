@@ -1,7 +1,7 @@
 import { CheckCircle2, XCircle } from "lucide-react";
 import { Button } from "./ui/button";
 import type { CareRelationship } from "@/types/types";
-import { useRespondToRequest, useUser } from "@/api/users";
+import { useRespondToRequest, useGetUser } from "@/api/users";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
@@ -10,7 +10,7 @@ type RequestCardProps = {
 };
 
 export function RequestCard({ request }: RequestCardProps) {
-  const { data: caregiver, isLoading } = useUser(request.caregiverId);
+  const { data: caregiver, isLoading } = useGetUser(request.caregiverId);
   const respondToRequest = useRespondToRequest();
 
   const handleRespondToRequest = (

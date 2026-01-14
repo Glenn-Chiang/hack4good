@@ -7,8 +7,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
@@ -21,6 +21,7 @@ func main() {
 		&models.User{},
 		&models.Caregiver{},
 		&models.Recipient{},
+		&models.CaregiverRecipient{},
 		&models.JournalEntry{},
 		&models.Comment{},
 		&models.Todo{},
@@ -46,6 +47,7 @@ func main() {
 
 	recipientHandler := handlers.RecipientHandler{DB: DB}
 	r.GET("/recipients", recipientHandler.List)
+	r.GET("/caregivers/:id/recipients", recipientHandler.ListRecipientsByCaregiver)
 
 	caregiverHandler := handlers.CaregiverHandler{DB: DB}
 	r.GET("/caregivers", caregiverHandler.List)

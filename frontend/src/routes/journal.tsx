@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useRecipients } from "../api/users";
+import { useGetRecipientsByCaregiver } from "../api/users";
 import { useAllJournalEntries } from "@/api/journal";
 import { useAddComment } from "@/api/journal";
 import { useComments } from "@/api/journal";
@@ -20,7 +20,9 @@ import { toast } from "sonner";
 export function Journal() {
   const { currentUser } = useAuth();
   const { data: allJournalEntries, isLoading } = useAllJournalEntries();
-  const { data: recipients } = useRecipients(currentUser?.id || "");
+  const { data: recipients } = useGetRecipientsByCaregiver(
+    currentUser?.id || ""
+  );
   const [expandedEntries, setExpandedEntries] = useState<Set<string>>(
     new Set()
   );

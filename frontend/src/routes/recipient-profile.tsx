@@ -1,5 +1,5 @@
 import { Link, useParams } from "@tanstack/react-router";
-import { useUser} from "../api/users";
+import { useGetUser } from "../api/users";
 import { useJournalEntries } from "@/api/journal";
 
 import {
@@ -23,13 +23,12 @@ import { format } from "date-fns";
 import { useAuth } from "@/auth/AuthProvider";
 import { useTodos } from "@/api/todos";
 
-
 export function RecipientProfile() {
   const { recipientId } = useParams({ from: "/recipients/$recipientId" });
-  const { data: recipient, isLoading: userLoading } = useUser(recipientId);
-  const { currentUser } = useAuth();
+  const { data: recipient, isLoading: userLoading } = useGetUser(recipientId);
   const { data: allTodos } = useTodos(String(currentUser?.id || ""));
   const rid = Number(recipientId);
+    
   const { data: journalEntries } = useJournalEntries(recipientId);
 
   const recipientTodos = allTodos?.filter((t) => t.recipientId === rid) || [];

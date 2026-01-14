@@ -1,8 +1,5 @@
 import { useState } from "react";
-import {
-  
-  useRecipients,
-} from "../api/users";
+import { useGetRecipientsByCaregiver } from "../api/users";
 import { useAuth } from "@/auth/AuthProvider";
 import {
   Card,
@@ -52,7 +49,9 @@ import { useAddTodo, useTodos, useToggleTodo } from "@/api/todos";
 export function TodoList() {
   const { currentUser } = useAuth();
   const { data: todos, isLoading } = useTodos(currentUser?.id || "");
-  const { data: recipients } = useRecipients(currentUser?.id || "");
+  const { data: recipients } = useGetRecipientsByCaregiver(
+    currentUser?.id || ""
+  );
   const toggleTodo = useToggleTodo();
   const addTodo = useAddTodo();
 

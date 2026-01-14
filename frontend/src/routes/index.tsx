@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { useRecipients } from "../api/users";
+import { useGetRecipientsByCaregiver } from "../api/users";
 import { useAllJournalEntries } from "@/api/journal";
 import { useTodos } from "@/api/todos";
 import { useAuth } from "@/auth/AuthProvider";
@@ -17,9 +17,8 @@ import { MoodIcon } from "../components/MoodIcon";
 
 export function Dashboard() {
   const { currentUser } = useAuth();
-  const { data: recipients, isLoading: recipientsLoading } = useRecipients(
-    currentUser?.id || ""
-  );
+  const { data: recipients, isLoading: recipientsLoading } =
+    useGetRecipientsByCaregiver(currentUser?.id || "");
   const { data: todos, isLoading: todosLoading } = useTodos(
     currentUser?.id || ""
   );
