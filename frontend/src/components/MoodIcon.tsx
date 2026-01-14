@@ -1,5 +1,5 @@
 import { Smile, Frown, Meh, Frown as Anxious, Laugh } from "lucide-react";
-import { MoodType } from "../lib/types";
+import { MoodType } from "../types/types";
 
 interface MoodIconProps {
   mood: MoodType;

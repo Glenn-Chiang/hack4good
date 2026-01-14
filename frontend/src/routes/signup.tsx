@@ -1,61 +1,67 @@
-import { useState } from 'react';
-import { useNavigate, Link } from '@tanstack/react-router';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { Textarea } from '../components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import { DialogDescription } from '../components/ui/dialog';
-import { Heart, User, ArrowLeft } from 'lucide-react';
-import { useSignup } from '../lib/queries';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { useNavigate, Link } from "@tanstack/react-router";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { Textarea } from "../components/ui/textarea";
+import { Heart, User, ArrowLeft } from "lucide-react";
+import { useSignup } from "../lib/queries";
+import { toast } from "sonner";
 
 export function Signup() {
   const navigate = useNavigate();
   const signup = useSignup();
-  const [selectedRole, setSelectedRole] = useState<'caregiver' | 'recipient' | null>(null);
+  const [selectedRole, setSelectedRole] = useState<
+    "caregiver" | "recipient" | null
+  >(null);
   const [formData, setFormData] = useState({
-    name: '',
-    username: '',
-    password: '',
-    confirmPassword: '',
+    name: "",
+    username: "",
+    password: "",
+    confirmPassword: "",
     age: 0,
-    condition: '',
-    likes: '',
-    dislikes: '',
-    phobias: '',
-    petPeeves: '',
+    condition: "",
+    likes: "",
+    dislikes: "",
+    phobias: "",
+    petPeeves: "",
   });
 
   const handleSignup = () => {
     if (!formData.name.trim()) {
-      toast.error('Please enter your name');
+      toast.error("Please enter your name");
       return;
     }
 
     if (!formData.username.trim()) {
-      toast.error('Please enter a username');
+      toast.error("Please enter a username");
       return;
     }
 
     if (!formData.password.trim()) {
-      toast.error('Please enter a password');
+      toast.error("Please enter a password");
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      toast.error('Passwords do not match');
+      toast.error("Passwords do not match");
       return;
     }
 
     if (formData.password.length < 6) {
-      toast.error('Password must be at least 6 characters');
+      toast.error("Password must be at least 6 characters");
       return;
     }
 
     if (!selectedRole) {
-      toast.error('Please select a role');
+      toast.error("Please select a role");
       return;
     }
 
@@ -66,7 +72,7 @@ export function Signup() {
       role: selectedRole,
     };
 
-    if (selectedRole === 'recipient') {
+    if (selectedRole === "recipient") {
       userData.age = formData.age;
       userData.condition = formData.condition;
       userData.likes = formData.likes;
@@ -77,11 +83,11 @@ export function Signup() {
 
     signup.mutate(userData, {
       onSuccess: () => {
-        toast.success('Account created successfully! Please login.');
-        navigate({ to: '/login' });
+        toast.success("Account created successfully! Please login.");
+        navigate({ to: "/login" });
       },
       onError: (error: any) => {
-        toast.error(error.message || 'Failed to create account');
+        toast.error(error.message || "Failed to create account");
       },
     });
   };
@@ -101,15 +107,17 @@ export function Signup() {
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Caregiver Signup */}
-              <Card 
+              <Card
                 className="cursor-pointer hover:shadow-xl transition-all hover:scale-105 border-2 hover:border-blue-400"
-                onClick={() => setSelectedRole('caregiver')}
+                onClick={() => setSelectedRole("caregiver")}
               >
                 <CardHeader className="text-center pb-4">
                   <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mx-auto mb-4">
                     <User className="w-8 h-8 text-blue-600" />
                   </div>
-                  <CardTitle className="text-2xl">Sign Up as Caregiver</CardTitle>
+                  <CardTitle className="text-2xl">
+                    Sign Up as Caregiver
+                  </CardTitle>
                   <CardDescription>
                     Create an account to manage and care for recipients
                   </CardDescription>
@@ -117,22 +125,24 @@ export function Signup() {
               </Card>
 
               {/* Recipient Signup */}
-              <Card 
+              <Card
                 className="cursor-pointer hover:shadow-xl transition-all hover:scale-105 border-2 hover:border-purple-400"
-                onClick={() => setSelectedRole('recipient')}
+                onClick={() => setSelectedRole("recipient")}
               >
                 <CardHeader className="text-center pb-4">
                   <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mx-auto mb-4">
                     <Heart className="w-8 h-8 text-purple-600" />
                   </div>
-                  <CardTitle className="text-2xl">Sign Up as Recipient</CardTitle>
+                  <CardTitle className="text-2xl">
+                    Sign Up as Recipient
+                  </CardTitle>
                   <CardDescription>
                     Create an account to journal and connect with caregivers
                   </CardDescription>
                 </CardHeader>
               </Card>
             </div>
-            
+
             <div className="text-center">
               <Link to="/login">
                 <Button variant="link">
@@ -153,9 +163,13 @@ export function Signup() {
                 Back
               </Button>
               <CardTitle>
-                {selectedRole === 'caregiver' ? 'Caregiver Registration' : 'Recipient Registration'}
+                {selectedRole === "caregiver"
+                  ? "Caregiver Registration"
+                  : "Recipient Registration"}
               </CardTitle>
-              <CardDescription>Fill in your information to create your account</CardDescription>
+              <CardDescription>
+                Fill in your information to create your account
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Common Fields */}
@@ -164,7 +178,9 @@ export function Signup() {
                 <Input
                   id="name"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   placeholder="Enter your full name"
                 />
               </div>
@@ -174,7 +190,9 @@ export function Signup() {
                 <Input
                   id="username"
                   value={formData.username}
-                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, username: e.target.value })
+                  }
                   placeholder="Enter a username"
                 />
               </div>
@@ -185,7 +203,9 @@ export function Signup() {
                   id="password"
                   type="password"
                   value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
                   placeholder="Enter a password"
                 />
               </div>
@@ -196,21 +216,31 @@ export function Signup() {
                   id="confirmPassword"
                   type="password"
                   value={formData.confirmPassword}
-                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      confirmPassword: e.target.value,
+                    })
+                  }
                   placeholder="Confirm your password"
                 />
               </div>
 
               {/* Recipient-specific fields */}
-              {selectedRole === 'recipient' && (
+              {selectedRole === "recipient" && (
                 <>
                   <div>
                     <Label htmlFor="age">Age</Label>
                     <Input
                       id="age"
                       type="number"
-                      value={formData.age || ''}
-                      onChange={(e) => setFormData({ ...formData, age: parseInt(e.target.value) || 0 })}
+                      value={formData.age || ""}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          age: parseInt(e.target.value) || 0,
+                        })
+                      }
                       placeholder="Enter your age"
                     />
                   </div>
@@ -220,7 +250,9 @@ export function Signup() {
                     <Input
                       id="condition"
                       value={formData.condition}
-                      onChange={(e) => setFormData({ ...formData, condition: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, condition: e.target.value })
+                      }
                       placeholder="e.g., Diabetes, Alzheimer's Disease"
                     />
                   </div>
@@ -230,7 +262,9 @@ export function Signup() {
                     <Textarea
                       id="likes"
                       value={formData.likes}
-                      onChange={(e) => setFormData({ ...formData, likes: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, likes: e.target.value })
+                      }
                       placeholder="e.g., Reading, gardening, classical music..."
                       rows={2}
                     />
@@ -241,7 +275,9 @@ export function Signup() {
                     <Textarea
                       id="dislikes"
                       value={formData.dislikes}
-                      onChange={(e) => setFormData({ ...formData, dislikes: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, dislikes: e.target.value })
+                      }
                       placeholder="e.g., Loud noises, spicy food..."
                       rows={2}
                     />
@@ -252,7 +288,9 @@ export function Signup() {
                     <Textarea
                       id="phobias"
                       value={formData.phobias}
-                      onChange={(e) => setFormData({ ...formData, phobias: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, phobias: e.target.value })
+                      }
                       placeholder="e.g., Fear of the dark, claustrophobia..."
                       rows={2}
                     />
@@ -263,7 +301,9 @@ export function Signup() {
                     <Textarea
                       id="petPeeves"
                       value={formData.petPeeves}
-                      onChange={(e) => setFormData({ ...formData, petPeeves: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, petPeeves: e.target.value })
+                      }
                       placeholder="e.g., Being rushed, people speaking too fast..."
                       rows={2}
                     />
@@ -271,8 +311,8 @@ export function Signup() {
                 </>
               )}
 
-              <Button 
-                onClick={handleSignup} 
+              <Button
+                onClick={handleSignup}
                 className="w-full"
                 disabled={signup.isPending}
               >

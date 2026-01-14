@@ -25,13 +25,12 @@ import {
   useAddJournalEntry,
   useUpdateUser,
   usePendingRequests,
-  useRespondToRequest,
   useCaregiversForRecipient,
   useComments,
   useAddComment,
 } from "../lib/queries";
 import { MoodIcon } from "../components/MoodIcon";
-import type { MoodType } from "../lib/types";
+import type { MoodType } from "../types/types";
 import {
   Smile,
   Frown,
@@ -43,8 +42,6 @@ import {
   BookOpen,
   User as UserIcon,
   Bell,
-  CheckCircle2,
-  XCircle,
   MessageCircle,
   ChevronDown,
   ChevronUp,
@@ -52,7 +49,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { getUserById } from "../lib/types";
+import { RequestCard } from "@/components/RequestCard";
 
 const moodOptions: {
   type: MoodType;
@@ -101,7 +98,6 @@ export function RecipientDashboard() {
   const { data: caregivers } = useCaregiversForRecipient(currentUser?.id || "");
   const addJournalEntry = useAddJournalEntry();
   const updateUser = useUpdateUser();
-  const respondToRequest = useRespondToRequest();
   const addCommentMutation = useAddComment();
 
   const [journalContent, setJournalContent] = useState("");
@@ -172,27 +168,6 @@ export function RecipientDashboard() {
           setIsProfileDialogOpen(false);
           // Update the auth context would happen here in real app
           window.location.reload(); // Simple refresh for mock data
-        },
-      }
-    );
-  };
-
-  const handleRespondToRequest = (
-    requestId: string,
-    status: "accepted" | "rejected"
-  ) => {
-    respondToRequest.mutate(
-      { requestId, status },
-      {
-        onSuccess: () => {
-          toast.success(
-            status === "accepted"
-              ? "Care request accepted!"
-              : "Care request declined"
-          );
-        },
-        onError: () => {
-          toast.error("Failed to respond to request");
         },
       }
     );
@@ -427,68 +402,11 @@ export function RecipientDashboard() {
             </CardHeader>
             <CardContent className="space-y-3">
               {pendingRequests.map((request) => {
-                const caregiver = getUserById(request.caregiverId);
-                return (
-                  <div
-                    key={request.id}
-                    className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                          <span className="text-blue-700">
-                            {caregiver?.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("") || "??"}
-                          </span>
-                        </div>
-                        <div>
-                          <p className="font-medium">
-                            {caregiver?.name || "Unknown"}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            Wants to be your caregiver
-                          </p>
-                          <p className="text-xs text-gray-400 mt-1">
-                            Requested{" "}
-                            {format(request.requestedAt, "MMM d, yyyy")}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() =>
-                            handleRespondToRequest(request.id, "rejected")
-                          }
-                          disabled={respondToRequest.isPending}
-                          className="border-red-200 text-red-700 hover:bg-red-50"
-                        >
-                          <XCircle className="w-4 h-4 mr-1" />
-                          Decline
-                        </Button>
-                        <Button
-                          size="sm"
-                          onClick={() =>
-                            handleRespondToRequest(request.id, "accepted")
-                          }
-                          disabled={respondToRequest.isPending}
-                          className="bg-green-600 hover:bg-green-700"
-                        >
-                          <CheckCircle2 className="w-4 h-4 mr-1" />
-                          Accept
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                );
+                return <RequestCard request={request} />;
               })}
             </CardContent>
           </Card>
         )}
-
         {/* My Caregivers */}
         {caregivers && caregivers.length > 0 && (
           <Card className="shadow-lg">
@@ -666,7 +584,6 @@ function JournalEntryWithComments({
   commentText,
   onCommentChange,
   onAddComment,
-  currentUserId,
 }: JournalEntryWithCommentsProps) {
   const { data: comments } = useComments(entry.id);
 

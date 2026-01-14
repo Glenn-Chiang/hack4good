@@ -8,7 +8,7 @@ import type {
   MoodType,
   User,
   CareRelationship,
-} from './types.ts'; // adjust path if needed
+} from '../types/types.ts';
 
 // ======================
 // Backend API helper
@@ -107,6 +107,17 @@ export const useAssignRecipient = () => {
   });
 };
 
+export const useSignup = () => {
+  return useMutation({
+    mutationFn: (newUser: Omit<User, 'id'>) =>
+      api<User>(`/auth/signup`, {
+        method: 'POST',
+        body: JSON.stringify(newUser),
+      }),
+  });
+};
+
+
 export const usePendingRequests = (recipientId: string) =>
   useQuery({
     queryKey: ['pending-requests', recipientId],
@@ -146,6 +157,14 @@ export const useCareRelationship = (
       ),
   });
 
+export const useNonCareGiversForRecipient = (recipientId: string) =>
+  useQuery({
+    queryKey: ['non-caregivers', recipientId],
+    queryFn: () =>
+      api<User[]>(`/recipients/${recipientId}/non-caregivers`),
+  });
+  
+
 export const useCaregiversForRecipient = (recipientId: string) =>
   useQuery({
     queryKey: ['caregivers', recipientId],
@@ -162,6 +181,13 @@ export const useTodos = (caregiverId: string) =>
     queryKey: ['todos', caregiverId],
     queryFn: () =>
       api<Todo[]>(`/caregivers/${caregiverId}/todos`),
+  });
+
+export const useRecipientTodos = (recipientId: string) =>
+  useQuery({
+    queryKey: ['recipient-todos', recipientId],
+    queryFn: () =>
+      api<Todo[]>(`/recipients/${recipientId}/todos`),
   });
 
 export const useToggleTodo = () => {
@@ -265,56 +291,3 @@ export const useAddComment = () => {
   });
 };
 
-
-// ======================
-// Users / Relationships
-// ======================
-
-export const getRecipientsByCaregiver = (caregiverId: string) =>
-  api<User[]>(`/caregivers/${caregiverId}/recipients`);
-
-export const getUnassignedRecipients = () =>
-  api<User[]>(`/recipients/unassigned`);
-
-export const getAllRecipients = () =>
-  api<User[]>(`/recipients`);
-
-export const getCareRelationship = (
-  caregiverId: string,
-  recipientId: string
-) =>
-  api<CareRelationship | null>(
-    `/care-relationships?caregiverId=${caregiverId}&recipientId=${recipientId}`
-  );
-
-export const getPendingRequestsForRecipient = (recipientId: string) =>
-  api<CareRelationship[]>(
-    `/recipients/${recipientId}/pending-requests`
-  );
-
-export const getCaregiversForRecipient = (recipientId: string) =>
-  api<User[]>(`/recipients/${recipientId}/caregivers`);
-
-export const getUserById = (userId: string) =>
-  api<User>(`/users/${userId}`);
-
-// ======================
-// Todos
-// ======================
-
-export const getTodosByCaregiver = (caregiverId: string) =>
-  api<Todo[]>(`/caregivers/${caregiverId}/todos`);
-
-// ======================
-// Journals
-// ======================
-
-export const getJournalsByRecipient = (recipientId: string) =>
-  api<JournalEntry[]>(`/recipients/${recipientId}/journals`);
-
-// ======================
-// Comments
-// ======================
-
-export const getCommentsByJournalEntry = (journalEntryId: string) =>
-  api<Comment[]>(`/journals/${journalEntryId}/comments`);
