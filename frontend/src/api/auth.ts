@@ -1,23 +1,23 @@
-import type { LoginCredentials, User } from "@/types/auth";
+import type { LoginPostData, SignUpPostData, User } from "@/types/auth";
 import { useMutation } from "@tanstack/react-query";
 import { apiFetch } from ".";
 
 export const useSignup = () => {
   return useMutation({
-    mutationFn: (newUser: Omit<User, "id">) =>
+    mutationFn: (data: SignUpPostData) =>
       apiFetch<User>(`/signup`, {
         method: "POST",
-        body: JSON.stringify(newUser),
+        body: JSON.stringify(data),
       }),
   });
 };
 
 export const useLogin = () => {
   return useMutation({
-    mutationFn: (credentials: LoginCredentials) =>
+    mutationFn: (credentials: LoginPostData) =>
       apiFetch<User>(`/login`, {
         method: "POST",
         body: JSON.stringify(credentials),
       }),
   });
-}
+};

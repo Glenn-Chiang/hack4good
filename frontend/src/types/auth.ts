@@ -1,16 +1,37 @@
-export type UserRole = 'caregiver' | 'recipient';
+export type UserRole = "caregiver" | "recipient";
 
 export type User = {
   id: string;
-  role: UserRole
-}
+  username: string;
+  name: string
+  role: UserRole;
+};
 
 export type AuthResponse = {
   user: User;
   token: string;
-}
+};
 
-export type LoginCredentials = {
+export type LoginPostData = {
   username: string;
-  password: string
+  password: string;
+};
+
+export interface SignUpPostData {
+  username: string;
+  password: string; 
+  name: string;
+  role: UserRole;
+
+  caregiver?: {
+  };
+
+  recipient?: {
+    age?: number;
+    condition?: string;
+    likes?: string;
+    dislikes?: string;
+    phobias?: string;
+    petPeeves?: string;
+  };
 }
