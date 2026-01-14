@@ -4,7 +4,7 @@ import {
   useGetRecipientsByCaregiver,
   useAssignRecipient,
   useCareRelationship,
-  useNonCareGiversForRecipient,
+  useGetAllRecipients,
 } from "../api/users";
 import { useAuth } from "@/auth/AuthProvider";
 import {
@@ -39,13 +39,11 @@ export function Recipients() {
   const [searchQuery, setSearchQuery] = useState("");
 
   // Filter recipients that are not already assigned to this caregiver
-  const { data: availableRecipients = [] } = useNonCareGiversForRecipient(
-    currentUser?.id || ""
-  );
+  const { data: availableRecipients = [] } = useGetAllRecipients();
 
   // Filter based on search query
   const filteredRecipients = availableRecipients.filter((r) =>
-    r.name.toLowerCase().includes(searchQuery.toLowerCase())
+    r.user.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleSendRequest = (recipientId: string) => {
@@ -132,14 +130,14 @@ export function Recipients() {
                           <div className="flex items-center gap-3">
                             <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
                               <span className="text-blue-700">
-                                {recipient.name
+                                {recipient.user.name
                                   .split(" ")
                                   .map((n) => n[0])
                                   .join("")}
                               </span>
                             </div>
                             <div>
-                              <p className="font-medium">{recipient.name}</p>
+                              <p className="font-medium">{recipient.user.name}</p>
                               <p className="text-sm text-gray-500">
                                 {recipient.age} years old
                                 {recipient.condition &&
@@ -184,14 +182,14 @@ export function Recipients() {
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
                   <span className="text-xl text-blue-700">
-                    {recipient.name
+                    {recipient.user.name
                       .split(" ")
                       .map((n) => n[0])
                       .join("")}
                   </span>
                 </div>
                 <div className="flex-1">
-                  <CardTitle className="text-lg">{recipient.name}</CardTitle>
+                  <CardTitle className="text-lg">{recipient.user.name}</CardTitle>
                   <p className="text-sm text-gray-500">
                     {recipient.age} years old
                   </p>

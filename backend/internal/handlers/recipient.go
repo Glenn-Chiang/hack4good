@@ -13,6 +13,15 @@ type RecipientHandler struct {
 	DB *gorm.DB
 }
 
+func (h RecipientHandler) List(c *gin.Context) {
+	var recipients []models.Recipient
+	if err := h.DB.Preload("User").Order("id desc").Find(&recipients).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, recipients)
+}
+
 func (h RecipientHandler) ListRecipientsByCaregiver(c *gin.Context) {
 	caregiverID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -23,6 +32,7 @@ func (h RecipientHandler) ListRecipientsByCaregiver(c *gin.Context) {
 	var recipients []models.Recipient
 
 	err = h.DB.
+		Preload("User").
 		Table("recipients").
 		Joins("JOIN caregiver_recipients cr ON cr.recipient_id = recipients.id").
 		Where("cr.caregiver_id = ?", uint(caregiverID)).

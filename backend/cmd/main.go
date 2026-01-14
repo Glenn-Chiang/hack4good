@@ -46,6 +46,7 @@ func main() {
 	r.POST("/signup", authHandler.Signup)
 
 	recipientHandler := handlers.RecipientHandler{DB: DB}
+	r.GET("/recipients", recipientHandler.List)
 	r.GET("/caregivers/:id/recipients", recipientHandler.ListRecipientsByCaregiver)
 
 	caregiverHandler := handlers.CaregiverHandler{DB: DB}

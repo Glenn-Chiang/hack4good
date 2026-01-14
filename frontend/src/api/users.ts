@@ -6,7 +6,6 @@ import { apiFetch } from "./index.ts";
 import type { CareRelationship, Recipient } from "@/types/users.ts";
 import type { User } from "@/types/auth.ts";
 
-
 // ======================
 // Users
 // ======================
@@ -40,6 +39,13 @@ export const useGetRecipientsByCaregiver = (caregiverId: string) =>
     queryKey: ["recipients", caregiverId],
     queryFn: () =>
       apiFetch<Recipient[]>(`/caregivers/${caregiverId}/recipients`),
+  });
+
+export const useGetAllRecipients = () =>
+  useQuery({
+    queryKey: ["recipients"],
+    queryFn: () =>
+      apiFetch<Recipient[]>('/recipients'),
   });
 
 // ======================
@@ -99,13 +105,6 @@ export const useCareRelationship = (caregiverId: string, recipientId: string) =>
       apiFetch<CareRelationship | null>(
         `/care-relationships?caregiverId=${caregiverId}&recipientId=${recipientId}`
       ),
-  });
-
-export const useNonCareGiversForRecipient = (recipientId: string) =>
-  useQuery({
-    queryKey: ["non-caregivers", recipientId],
-    queryFn: () =>
-      apiFetch<User[]>(`/recipients/${recipientId}/non-caregivers`),
   });
 
 export const useCaregiversForRecipient = (recipientId: string) =>
