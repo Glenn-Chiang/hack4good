@@ -14,6 +14,7 @@ import { Textarea } from "../components/ui/textarea";
 import { Heart, User, ArrowLeft } from "lucide-react";
 import { useSignup } from "@/api/auth";
 import { toast } from "sonner";
+import type { SignUpPostData } from "@/types/auth";
 
 export function Signup() {
   const navigate = useNavigate();
@@ -65,7 +66,7 @@ export function Signup() {
       return;
     }
 
-    const userData: any = {
+    const signUpData: SignUpPostData = {
       name: formData.name,
       username: formData.username,
       password: formData.password,
@@ -73,15 +74,19 @@ export function Signup() {
     };
 
     if (selectedRole === "recipient") {
-      userData.age = formData.age;
-      userData.condition = formData.condition;
-      userData.likes = formData.likes;
-      userData.dislikes = formData.dislikes;
-      userData.phobias = formData.phobias;
-      userData.petPeeves = formData.petPeeves;
+      signUpData.recipient = {
+        age: formData.age,
+        condition: formData.condition,
+        likes: formData.likes,
+        dislikes: formData.dislikes,
+        phobias: formData.phobias,
+        petPeeves: formData.petPeeves,
+      };
+    } else if (selectedRole === "caregiver") {
+      signUpData.caregiver = {};
     }
 
-    signup.mutate(userData, {
+    signup.mutate(signUpData, {
       onSuccess: () => {
         toast.success("Account created successfully! Please login.");
         navigate({ to: "/login" });
