@@ -18,8 +18,6 @@ import { MoodIcon } from "../components/MoodIcon";
 import { format } from "date-fns";
 import { MessageCircle, Mic, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
-import { get } from "http";
-import { getUserById } from "@/types/types";
 
 export function Journal() {
   const { currentUser } = useAuth();
@@ -205,7 +203,7 @@ function JournalEntryCard({
                   <div key={comment.id} className="bg-gray-50 p-3 rounded-lg">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-sm">
-                        {getUserById(comment.authorId)?.name}
+                        {comment.authorId || "Unknown"}
                       </span>
                       <span className="text-xs text-gray-500">
                         {format(comment.createdAt, "MMM d, h:mm a")}

@@ -3,7 +3,7 @@ import { Button } from "./ui/button";
 import type { CareRelationship } from "@/types/types";
 import { useRespondToRequest, useUser } from "@/lib/queries";
 import { toast } from "sonner";
-import { format } from "node_modules/date-fns/format";
+import { format } from "date-fns";
 
 type RequestCardProps = {
   request: CareRelationship;
