@@ -42,8 +42,8 @@ export function Recipients() {
   const { data: availableRecipients = [] } = useGetAllRecipients();
 
   // Filter based on search query
-  const filteredRecipients = availableRecipients.filter((r) =>
-    r.user.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredRecipients = availableRecipients.filter((recipient) => 
+     recipient.user.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleSendRequest = (recipientId: string) => {

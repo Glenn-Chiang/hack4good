@@ -39,11 +39,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [currentUser]);
 
-  useEffect(() => {
-    console.log("AuthProvider currentUser:", currentUser);
-  }, [currentUser]);
-
-  
   const login = (res: LoginResponse) => {
     setCurrentUser(res.user);
   };
