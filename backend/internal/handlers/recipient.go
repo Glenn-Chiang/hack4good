@@ -12,26 +12,6 @@ type RecipientHandler struct {
 	DB *gorm.DB
 }
 
-func (h RecipientHandler) Create(c *gin.Context) {
-	var req struct {
-		// TODO:
-	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	u := models.Recipient{
-		// TODO:
-	}
-	if err := h.DB.Create(&u).Error; err != nil {
-		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusCreated, u)
-}
-
 func (h RecipientHandler) List(c *gin.Context) {
 	var recipients []models.Recipient
 	if err := h.DB.Order("id desc").Find(&recipients).Error; err != nil {
