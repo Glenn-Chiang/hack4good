@@ -15,6 +15,8 @@ export interface User {
   dislikes?: string;
   phobias?: string;
   petPeeves?: string;
+  recipientId?: number;
+  caregiverId?: number;
 }
 
 export type RelationshipStatus = 'pending' | 'accepted' | 'rejected';
@@ -42,8 +44,8 @@ export interface Todo {
 export type MoodType = 'happy' | 'sad' | 'neutral' | 'anxious' | 'excited';
 
 export interface JournalEntry {
-  id: string;
-  recipientId: string;
+  id: number;
+  recipientId: number;
   content: string;
   mood: MoodType;
   createdAt: Date;
@@ -53,8 +55,9 @@ export interface JournalEntry {
 
 export interface Comment {
   id: string;
-  journalEntryId: string;
-  authorId: string;
+  journalEntryId: number;
+  authorId: number;
+  authorName: string;
   authorRole: UserRole;
   content: string;
   createdAt: Date;

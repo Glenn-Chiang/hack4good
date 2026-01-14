@@ -14,12 +14,12 @@ import (
 )
 
 type SignupRequest struct {
-  Username string          `json:"username" binding:"required"`
-  Password string          `json:"password" binding:"required,min=8"`
-  Name     string          `json:"name" binding:"required"`
-  Role     models.UserRole `json:"role" binding:"required,oneof=caregiver recipient"`
-	
-  Caregiver *struct {
+	Username string          `json:"username" binding:"required"`
+	Password string          `json:"password" binding:"required,min=8"`
+	Name     string          `json:"name" binding:"required"`
+	Role     models.UserRole `json:"role" binding:"required,oneof=caregiver recipient"`
+
+	Caregiver *struct {
 		// caregiver-specific fields go here later
 	} `json:"caregiver,omitempty"`
 
@@ -130,7 +130,6 @@ func (h AuthHandler) Signup(c *gin.Context) {
 	c.JSON(http.StatusCreated, createdUser)
 }
 
-
 type loginRequest struct {
 	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required,min=8"`
@@ -143,10 +142,12 @@ type loginResponse struct {
 
 // Public view of user object
 type userPublic struct {
-	ID       uint            `json:"id"`
-	Username string          `json:"username"`
-	Name     string          `json:"name"`
-	Role     models.UserRole `json:"role"`
+	ID          uint            `json:"id"`
+	Username    string          `json:"username"`
+	Name        string          `json:"name"`
+	Role        models.UserRole `json:"role"`
+	RecipientID *uint           `json:"recipientId,omitempty"`
+	CaregiverID *uint           `json:"caregiverId,omitempty"`
 }
 
 func (h AuthHandler) Login(c *gin.Context) {
@@ -179,10 +180,31 @@ func (h AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
+	// Build public user
+	publicUser := userPublic{
+		ID:       u.ID,
+		Username: u.Username,
+		Name:     u.Name,
+		Role:     u.Role,
+	}
+
+	// Resolve domain identity
+	switch u.Role {
+	case models.RoleRecipient:
+		var recipient models.Recipient
+		if err := h.DB.Where("user_id = ?", u.ID).First(&recipient).Error; err == nil {
+			publicUser.RecipientID = &recipient.ID
+		}
+
+	case models.RoleCaregiver:
+		var caregiver models.Caregiver
+		if err := h.DB.Where("user_id = ?", u.ID).First(&caregiver).Error; err == nil {
+			publicUser.CaregiverID = &caregiver.ID
+		}
+	}
+
 	c.JSON(http.StatusOK, loginResponse{
 		Token: token,
-		User: userPublic{
-			ID: u.ID, Username: u.Username, Name: u.Name, Role: u.Role,
-		},
+		User:  publicUser,
 	})
 }

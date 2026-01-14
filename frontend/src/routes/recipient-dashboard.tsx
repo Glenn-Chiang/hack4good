@@ -24,7 +24,6 @@ import {
   useUpdateUser,
   usePendingRequests,
   useCaregiversForRecipient,
-  
 } from "../api/users";
 import { MoodIcon } from "../components/MoodIcon";
 import type { MoodType } from "../types/types";
@@ -47,7 +46,12 @@ import {
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { RequestCard } from "@/components/RequestCard";
-import { useJournalEntries, useAddJournalEntry, useAddComment, useComments } from "@/api/journal";
+import {
+  useJournalEntries,
+  useAddJournalEntry,
+  useAddComment,
+  useComments,
+} from "@/api/journal";
 
 const moodOptions: {
   type: MoodType;
@@ -91,7 +95,10 @@ const moodOptions: {
 
 export function RecipientDashboard() {
   const { currentUser, logout } = useAuth();
-  const { data: journalEntries } = useJournalEntries(currentUser?.id || "");
+
+  const { data: journalEntries } = useJournalEntries(
+    currentUser?.recipientId || ""
+  );
   const { data: pendingRequests } = usePendingRequests(currentUser?.id || "");
   const { data: caregivers } = useCaregiversForRecipient(currentUser?.id || "");
   const addJournalEntry = useAddJournalEntry();
@@ -128,10 +135,9 @@ export function RecipientDashboard() {
 
     addJournalEntry.mutate(
       {
-        recipientId: currentUser?.id || "",
+        recipientId: Number(currentUser?.recipientId || ""),
         content: journalContent,
         mood: selectedMood,
-        hasVoiceMessage: showVoiceRecording,
       },
       {
         onSuccess: () => {
@@ -190,10 +196,9 @@ export function RecipientDashboard() {
 
     addCommentMutation.mutate(
       {
-        journalEntryId,
+        journalEntryId: Number(journalEntryId),
         content: comment,
-        authorId: currentUser?.id || "",
-        authorRole: "recipient",
+        authorId: Number(currentUser?.id || ""),
       },
       {
         onSuccess: () => {
@@ -627,7 +632,6 @@ function JournalEntryWithComments({
             {comments && comments.length > 0 && (
               <div className="space-y-2">
                 {comments.map((comment) => {
-                  const author = getUserById(comment.authorId);
                   return (
                     <div
                       key={comment.id}
@@ -635,7 +639,7 @@ function JournalEntryWithComments({
                     >
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-sm font-medium">
-                          {author?.name || "Unknown"}
+                          {comment.authorName}
                         </span>
                         <Badge variant="outline" className="text-xs">
                           {comment.authorRole === "caregiver"

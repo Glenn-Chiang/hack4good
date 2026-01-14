@@ -10,13 +10,13 @@ export const useJournalEntries = (recipientId: string) =>
   useQuery({
     queryKey: ["journal-entries", recipientId],
     queryFn: () =>
-      apiFetch<JournalEntry[]>(`/recipients/${recipientId}/journals`),
+      apiFetch<JournalEntry[]>(`/journal-entries?recipientId=${recipientId}`),
   });
 
-export const useAllJournalEntries = () =>
+export const useAcceptedJournalEntries = (caregiverId: string) =>
   useQuery({
     queryKey: ["all-journal-entries"],
-    queryFn: () => apiFetch<JournalEntry[]>(`/journals`),
+    queryFn: () => apiFetch<JournalEntry[]>(`/journal-entries/accepted?caregiverId=${caregiverId}`),
   });
 
 export const useAddJournalEntry = () => {
@@ -24,12 +24,11 @@ export const useAddJournalEntry = () => {
 
   return useMutation({
     mutationFn: (data: {
-      recipientId: string;
+      recipientId: number;
       content: string;
       mood: MoodType;
-      hasVoiceMessage?: boolean;
     }) =>
-      apiFetch<JournalEntry>(`/journals`, {
+      apiFetch<JournalEntry>(`/journal-entries`, {
         method: "POST",
         body: JSON.stringify(data),
       }),
@@ -40,25 +39,28 @@ export const useAddJournalEntry = () => {
   });
 };
 
+
 // ======================
 // Comments
 // ======================
 
-export const useComments = (journalEntryId: string) =>
+export const useComments = (journalEntryId : number) =>
   useQuery({
     queryKey: ["comments", journalEntryId],
-    queryFn: () => apiFetch<Comment[]>(`/journals/${journalEntryId}/comments`),
+    queryFn: () =>
+      apiFetch<Comment[]>(`/comments?journalEntryId=${journalEntryId}`),
+    enabled: !!journalEntryId,
   });
+
 
 export const useAddComment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (data: {
-      journalEntryId: string;
+      journalEntryId: number;
       content: string;
-      authorId: string;
-      authorRole: "caregiver" | "recipient";
+      authorId: number;
     }) =>
       apiFetch<Comment>(`/comments`, {
         method: "POST",
@@ -71,3 +73,4 @@ export const useAddComment = () => {
     },
   });
 };
+

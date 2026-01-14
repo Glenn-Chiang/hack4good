@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useRecipients } from "../api/users";
-import { useAllJournalEntries } from "@/api/journal";
+import { useAcceptedJournalEntries } from "@/api/journal";
 import { useTodos } from "@/api/todos";
 import { useAuth } from "@/auth/AuthProvider";
 import { CheckSquare, BookOpen, Users, AlertCircle } from "lucide-react";
@@ -23,14 +23,8 @@ export function Dashboard() {
   const { data: todos, isLoading: todosLoading } = useTodos(
     currentUser?.id || ""
   );
-  const { data: allJournalEntries, isLoading: journalLoading } =
-    useAllJournalEntries();
-
-  const acceptedRecipientIds = new Set(recipients?.map((r) => r.id) || []);
-  const journalEntries =
-    allJournalEntries?.filter((entry) =>
-      acceptedRecipientIds.has(entry.recipientId)
-    ) || [];
+  const { data: journalEntries, isLoading: journalLoading } =
+    useAcceptedJournalEntries(currentUser?.id || "");
 
   const urgentTodos =
     todos?.filter((t) => !t.completed && t.priority === "high") || [];

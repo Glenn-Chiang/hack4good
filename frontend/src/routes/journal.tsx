@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useRecipients } from "../api/users";
-import { useAllJournalEntries } from "@/api/journal";
+import { useUser } from "../api/users";
+import { useAcceptedJournalEntries } from "@/api/journal";
 import { useAddComment } from "@/api/journal";
 import { useComments } from "@/api/journal";
 import { useAuth } from "@/auth/AuthProvider";
@@ -19,8 +19,6 @@ import { toast } from "sonner";
 
 export function Journal() {
   const { currentUser } = useAuth();
-  const { data: allJournalEntries, isLoading } = useAllJournalEntries();
-  const { data: recipients } = useRecipients(currentUser?.id || "");
   const [expandedEntries, setExpandedEntries] = useState<Set<string>>(
     new Set()
   );
@@ -28,11 +26,9 @@ export function Journal() {
   const addComment = useAddComment();
 
   // Filter journal entries to only show those from accepted recipients
-  const acceptedRecipientIds = new Set(recipients?.map((r) => r.id) || []);
-  const journalEntries =
-    allJournalEntries?.filter((entry) =>
-      acceptedRecipientIds.has(entry.recipientId)
-    ) || [];
+  const { data: journalEntries, isLoading } = useAcceptedJournalEntries(
+    currentUser?.id || ""
+  );
 
   const toggleExpand = (entryId: string) => {
     const newExpanded = new Set(expandedEntries);
@@ -53,10 +49,9 @@ export function Journal() {
 
     addComment.mutate(
       {
-        journalEntryId,
+        journalEntryId: Number(journalEntryId),
         content: comment,
-        authorId: currentUser?.id || "",
-        authorRole: "caregiver",
+        authorId: Number(currentUser?.id || ""),
       },
       {
         onSuccess: () => {
@@ -84,22 +79,19 @@ export function Journal() {
         {journalEntries?.length === 0 && (
           <Card>
             <CardContent className="py-8 text-center text-gray-500">
-              {recipients?.length === 0
-                ? "No recipients assigned yet. Add recipients to see their journal entries."
-                : "No journal entries yet from your recipients"}
+              {"No journal entries yet from your recipients"}
             </CardContent>
           </Card>
         )}
 
         {journalEntries?.map((entry) => {
-          const recipient = recipients?.find((r) => r.id === entry.recipientId);
           const isExpanded = expandedEntries.has(entry.id);
 
           return (
             <JournalEntryCard
               key={entry.id}
               entry={entry}
-              recipient={recipient}
+              recipientId={entry.recipientId}
               isExpanded={isExpanded}
               onToggleExpand={() => toggleExpand(entry.id)}
               commentText={commentText[entry.id] || ""}
@@ -117,7 +109,7 @@ export function Journal() {
 
 interface JournalEntryCardProps {
   entry: any;
-  recipient: any;
+  recipientId: string;
   isExpanded: boolean;
   onToggleExpand: () => void;
   commentText: string;
@@ -127,15 +119,15 @@ interface JournalEntryCardProps {
 
 function JournalEntryCard({
   entry,
-  recipient,
+  recipientId,
   isExpanded,
   onToggleExpand,
   commentText,
   onCommentChange,
   onAddComment,
 }: JournalEntryCardProps) {
-  const { currentUser } = useAuth();
   const { data: comments } = useComments(entry.id);
+  const { data: recipient } = useUser(recipientId);
 
   return (
     <Card>
@@ -200,9 +192,7 @@ function JournalEntryCard({
                 {comments.map((comment) => (
                   <div key={comment.id} className="bg-gray-50 p-3 rounded-lg">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm">
-                        {comment.authorId || "Unknown"}
-                      </span>
+                      <span className="text-sm">{comment.authorName}</span>
                       <span className="text-xs text-gray-500">
                         {format(comment.createdAt, "MMM d, h:mm a")}
                       </span>
