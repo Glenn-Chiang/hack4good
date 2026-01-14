@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   useRecipients,
-  useAllRecipients,
   useAssignRecipient,
+  useCareRelationship,
+  useNonCareGiversForRecipient,
 } from "../lib/queries";
 import { useAuth } from "../lib/auth";
 import {
@@ -26,27 +27,19 @@ import { Label } from "../components/ui/label";
 import { Badge } from "../components/ui/badge";
 import { Users, Plus, Search, Clock } from "lucide-react";
 import { toast } from "sonner";
-import { getCareRelationship } from "../lib/mock-data";
 
 export function Recipients() {
   const { currentUser } = useAuth();
   const { data: recipients, isLoading } = useRecipients(currentUser?.id || "");
-  const { data: allRecipients } = useAllRecipients();
   const assignRecipient = useAssignRecipient();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   // Filter recipients that are not already assigned to this caregiver
-  const availableRecipients =
-    allRecipients?.filter((r) => {
-      const relationship = getCareRelationship(currentUser?.id || "", r.id);
-      return (
-        !relationship ||
-        relationship.status === "rejected" ||
-        relationship.status === "pending"
-      );
-    }) || [];
+  const { data: availableRecipients = [] } = useNonCareGiversForRecipient(
+    currentUser?.id || ""
+  );
 
   // Filter based on search query
   const filteredRecipients = availableRecipients.filter((r) =>
@@ -68,10 +61,6 @@ export function Recipients() {
         },
       }
     );
-  };
-
-  const getRelationshipStatus = (recipientId: string) => {
-    return getCareRelationship(currentUser?.id || "", recipientId);
   };
 
   if (isLoading) {
@@ -124,7 +113,11 @@ export function Recipients() {
                   </p>
                 )}
                 {filteredRecipients.map((recipient) => {
-                  const relationship = getRelationshipStatus(recipient.id);
+                  const { data: relationship } = useCareRelationship(
+                    currentUser?.id || "",
+                    recipient.id
+                  );
+
                   const isPending = relationship?.status === "pending";
 
                   return (
