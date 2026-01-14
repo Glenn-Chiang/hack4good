@@ -1,5 +1,5 @@
 import { Link, useParams } from "@tanstack/react-router";
-import { useUser, useJournalEntries, useRecipientTodos } from "../lib/queries";
+import { useUser, useJournalEntries, useRecipientTodos } from "../api/users";
 import {
   Card,
   CardContent,

@@ -19,7 +19,7 @@ import { CaregiverProfile } from "./routes/caregiver-profile";
 import { Login } from "./routes/login";
 import { Signup } from "./routes/signup";
 import { Toaster } from "./components/ui/sonner";
-import { AuthProvider, useAuth } from "./lib/auth";
+import { AuthProvider, useAuth } from "./api/auth";
 
 // Create a query client
 const queryClient = new QueryClient({

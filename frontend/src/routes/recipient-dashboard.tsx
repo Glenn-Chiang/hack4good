@@ -19,7 +19,7 @@ import {
   DialogTrigger,
   DialogDescription,
 } from "../components/ui/dialog";
-import { useAuth } from "../lib/auth";
+import { useAuth } from "../api/auth";
 import {
   useJournalEntries,
   useAddJournalEntry,
@@ -28,7 +28,7 @@ import {
   useCaregiversForRecipient,
   useComments,
   useAddComment,
-} from "../lib/queries";
+} from "../api/users";
 import { MoodIcon } from "../components/MoodIcon";
 import type { MoodType } from "../types/types";
 import {

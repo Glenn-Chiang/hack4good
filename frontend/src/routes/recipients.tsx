@@ -5,8 +5,8 @@ import {
   useAssignRecipient,
   useCareRelationship,
   useNonCareGiversForRecipient,
-} from "../lib/queries";
-import { useAuth } from "../lib/auth";
+} from "../api/users";
+import { useAuth } from "../api/auth";
 import {
   Card,
   CardContent,

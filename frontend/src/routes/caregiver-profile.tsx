@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuth } from "../lib/auth";
+import { useAuth } from "../api/auth";
 import {
   Card,
   CardContent,
@@ -57,7 +57,6 @@ export function CaregiverProfile() {
             </div>
             <div>
               <CardTitle> {currentUser.username}</CardTitle>
-
             </div>
           </div>
         </CardHeader>

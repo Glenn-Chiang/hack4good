@@ -1,7 +1,7 @@
 import { CheckCircle2, XCircle } from "lucide-react";
 import { Button } from "./ui/button";
 import type { CareRelationship } from "@/types/types";
-import { useRespondToRequest, useUser } from "@/lib/queries";
+import { useRespondToRequest, useUser } from "@/api/users";
 import { toast } from "sonner";
 import { format } from "date-fns";
 

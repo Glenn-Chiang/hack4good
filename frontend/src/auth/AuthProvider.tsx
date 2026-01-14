@@ -1,48 +1,89 @@
-import type { AuthResponse, User } from '@/types/auth'
-import React, { createContext, useContext, useState } from 'react'
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  type ReactNode,
+} from "react";
+import { type User } from "../types/types";
+import { useMutation } from "@tanstack/react-query";
 
-type AuthContextType = {
-  user: User | null
-  token: string
-  loginAction: (data: AuthResponse) => Promise<void>
+interface AuthContextType {
+  currentUser: User | null;
+  login: (username: string, password: string) => boolean;
+  logout: () => void;
+  updateUser: (updatedUser: User) => void;
+  isAuthenticated: boolean;
 }
 
-const defaultAuthContext: AuthContextType = {
-  user: {
-    id: 'test-user',
-    role: 'recipient',
-  }, // TODO: Set to null when done testing
-  token: '',
-  loginAction: async (_) => {
-    /* no-op */
-  },
-}
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const AuthContext = createContext<AuthContextType>(defaultAuthContext)
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [currentUser, setCurrentUser] = useState<User | null>(() => {
+    // Initialize from localStorage
+    const stored = localStorage.getItem("currentUser");
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  });
 
-const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null)
-  const [token, setToken] = useState('')
+  // Persist to localStorage whenever currentUser changes
+  useEffect(() => {
+    if (currentUser) {
+      localStorage.setItem("currentUser", JSON.stringify(currentUser));
+    } else {
+      localStorage.removeItem("currentUser");
+    }
+  }, [currentUser]);
 
-  const loginAction = async (data: AuthResponse) => {
-    setUser(data.user)
-    setToken(data.token)
-    localStorage.setItem('token', data.token)
-  }
+  const login = (username: string, password: string): boolean => {
+    const user = users.find(
+      (u) => u.username === username && u.password === password
+    );
+    if (user) {
+      setCurrentUser(user);
+      return true;
+    }
+    return false;
+  };
 
-  // const authValue: AuthContextType = {
-  //   user,
-  //   token,
-  //   loginAction,
-  // }
+  const logout = () => {
+    setCurrentUser(null);
+  };
 
-  const authValue = defaultAuthContext
+  const updateUser = (updatedUser: User) => {
+    // Update the user in the users array
+    const userIndex = users.findIndex((u) => u.id === updatedUser.id);
+    if (userIndex !== -1) {
+      users[userIndex] = updatedUser;
+    }
+    setCurrentUser(updatedUser);
+  };
 
   return (
-    <AuthContext.Provider value={authValue}>{children}</AuthContext.Provider>
-  )
+    <AuthContext.Provider
+      value={{
+        currentUser,
+        login,
+        logout,
+        updateUser,
+        isAuthenticated: !!currentUser,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
-export default AuthProvider
-
-export const useAuth = () => useContext(AuthContext)
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+}

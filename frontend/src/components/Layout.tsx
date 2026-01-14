@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Home, CheckSquare, BookOpen, Users, LogOut, User } from "lucide-react";
-import { useAuth } from "../lib/auth";
+import { useAuth } from "../api/auth";
 import { Button } from "./ui/button";
 
 interface LayoutProps {
