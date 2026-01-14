@@ -3,12 +3,16 @@ package auth
 import (
 	"os"
 	"time"
+	"fmt"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
 func SignToken(userID uint, role string) (string, error) {
 	secret := os.Getenv("JWT_SECRET")
+	if secret == "" {
+		return "", fmt.Errorf("JWT_SECRET is not set")
+	}
 
 	claims := jwt.MapClaims{
 		"sub":  userID,

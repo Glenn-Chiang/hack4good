@@ -8,9 +8,9 @@ const (
 )
 
 type User struct {
-	ID        uint      `gorm:"primaryKey"`
-	Username     string    `gorm:"uniqueIndex;not null"`
+	ID           uint     `gorm:"primaryKey" json:"id"`
+	Username     string   `gorm:"uniqueIndex;not null" json:"username"`
 	PasswordHash string   `gorm:"not null" json:"-"`
-	Name      string    `gorm:"not null"`
-	Role      UserRole `gorm:"type:varchar(20);not null"`
+	Name         string   `gorm:"not null" json:"name"`
+	Role         UserRole `gorm:"type:varchar(20);not null" json:"role"`
 }
