@@ -32,7 +32,7 @@ export function Login() {
       password,
     };
 
-    login.mutate(loginData, {
+    login.mutateAsync(loginData, {
       onSuccess: () => {
         toast.success("Login successful!");
         navigate({ to: "/" });
