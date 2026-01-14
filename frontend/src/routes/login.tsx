@@ -14,10 +14,13 @@ import { Heart } from "lucide-react";
 import { toast } from "sonner";
 import { useLogin } from "@/api/auth";
 import type { LoginPostData } from "@/types/auth";
+import { useAuth } from "@/auth/AuthProvider";
+import { flushSync } from "react-dom";
 
 export function Login() {
   const navigate = useNavigate();
   const login = useLogin();
+  const { storeAuth } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
@@ -33,9 +36,12 @@ export function Login() {
     };
 
     login.mutateAsync(loginData, {
-      onSuccess: () => {
+      onSuccess: (res) => {
         toast.success("Login successful!");
-        navigate({ to: "/" });
+        flushSync(() => {
+          storeAuth(res);
+        });
+        navigate({ to: "/", replace: true });
       },
       onError: () => {
         toast.error("Invalid username or password");

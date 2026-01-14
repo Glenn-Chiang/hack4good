@@ -9,7 +9,7 @@ import { type LoginResponse, type User } from "@/types/auth";
 
 interface AuthContextType {
   currentUser: User | null;
-  login: (res: LoginResponse) => void;
+  storeAuth: (res: LoginResponse) => void;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -39,6 +39,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [currentUser]);
 
+  useEffect(() => {
+    console.log("AuthProvider currentUser:", currentUser);
+  }, [currentUser]);
+
+  
   const login = (res: LoginResponse) => {
     setCurrentUser(res.user);
   };
@@ -51,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{
         currentUser,
-        login,
+        storeAuth: login,
         logout,
         isAuthenticated: !!currentUser,
       }}

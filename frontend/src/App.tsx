@@ -44,9 +44,9 @@ function ProtectedRoute({
 
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate({ to: "/login" });
+      navigate({ to: "/login", replace: true });
     } else if (allowedRole && currentUser?.role !== allowedRole) {
-      navigate({ to: "/" });
+      navigate({ to: "/", replace: true });
     }
   }, [isAuthenticated, currentUser, allowedRole, navigate]);
 
@@ -108,7 +108,7 @@ function MainDashboard() {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate({ to: "/login" });
+      navigate({ to: "/login", replace: true });
     }
   }, [isAuthenticated, navigate]);
 
