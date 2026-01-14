@@ -14,11 +14,12 @@ import (
 )
 
 type SignupRequest struct {
-	Username string          `json:"username" binding:"required,username"`
-	Name  string          `json:"name" binding:"required"`
-	Role  models.UserRole `json:"role" binding:"required,oneof=caregiver recipient"`
-
-	Caregiver *struct {
+  Username string          `json:"username" binding:"required"`
+  Password string          `json:"password" binding:"required,min=8"`
+  Name     string          `json:"name" binding:"required"`
+  Role     models.UserRole `json:"role" binding:"required,oneof=caregiver recipient"`
+	
+  Caregiver *struct {
 		// caregiver-specific fields go here later
 	} `json:"caregiver,omitempty"`
 
@@ -42,6 +43,10 @@ func (h AuthHandler) Signup(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	// normalize username SAME way as login
+	username := strings.ToLower(strings.TrimSpace(req.Username))
+	req.Username = username
 
 	// Enforce shape based on role
 	switch req.Role {
@@ -68,13 +73,21 @@ func (h AuthHandler) Signup(c *gin.Context) {
 		return
 	}
 
+	// hash password BEFORE transaction
+	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not hash password"})
+		return
+	}
+
 	var createdUser models.User
-	err := h.DB.Transaction(func(tx *gorm.DB) error {
+	err = h.DB.Transaction(func(tx *gorm.DB) error {
 		// 1) create user
 		user := models.User{
-			Username: req.Username,
-			Name:  req.Name,
-			Role:  req.Role,
+			Username:     req.Username,
+			Name:         req.Name,
+			Role:         req.Role,
+			PasswordHash: string(hash),
 		}
 		if err := tx.Create(&user).Error; err != nil {
 			return err
@@ -116,6 +129,7 @@ func (h AuthHandler) Signup(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, createdUser)
 }
+
 
 type loginRequest struct {
 	Username string `json:"username" binding:"required"`
