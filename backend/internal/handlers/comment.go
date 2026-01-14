@@ -76,8 +76,8 @@ func (h CommentHandler) List(c *gin.Context) {
 		comments.author_id,
 		comments.journal_entry_id,
 		comments.created_at,
-		users.role,
-		users.name
+		users.role AS author_role,
+		users.name AS author_name
 	`).
 		Joins("JOIN users ON users.id = comments.author_id").
 		Order("comments.created_at ASC")
