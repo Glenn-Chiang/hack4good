@@ -46,7 +46,7 @@ export const useAddJournalEntry = () => {
 // Comments
 // ======================
 
-export const useComments = (journalEntryId : number) =>
+export const useComments = (journalEntryId : string) =>
   useQuery({
     queryKey: ["comments", journalEntryId],
     queryFn: () =>

@@ -22,9 +22,8 @@ import {
 import { useAuth } from "@/auth/AuthProvider";
 import {
   useGetPendingRequestsForRecipient,
-  useUpdateRecipient,
   useCaregiversForRecipient,
-  useGetRecipientById,
+  useGetRecipientByUserId,
 } from "../api/users";
 import { MoodIcon } from "../components/MoodIcon";
 import type { MoodType } from "../types/types";
@@ -97,15 +96,15 @@ const moodOptions: {
 
 export function RecipientDashboard() {
   const { currentUser, logout } = useAuth();
-  const { data: recipient } = useGetRecipientById(
-    currentUser?.recipientId || ""
-  );
+  const { data: recipient } = useGetRecipientByUserId(currentUser?.id || "");
 
   const { data: journalEntries } = useJournalEntries(recipient?.id || "");
   const { data: pendingRequests } = useGetPendingRequestsForRecipient(
     recipient?.id || ""
   );
-  const { data: caregivers } = useCaregiversForRecipient(recipient?.id || "");
+  const { data: caregivers } = useGetCaregiversForRecipient(
+    recipient?.id || ""
+  );
 
   const addJournalEntry = useAddJournalEntry();
   const updateRecipient = useUpdateRecipient();
@@ -418,42 +417,45 @@ export function RecipientDashboard() {
           </Card>
         )}
         {/* My Caregivers */}
-        {caregivers && caregivers.length > 0 && (
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="w-5 h-5" />
-                My Caregivers
-              </CardTitle>
-              <CardDescription>
-                People who are taking care of you
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {caregivers.map((caregiver) => (
+
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="w-5 h-5" />
+              My Caregivers
+            </CardTitle>
+            <CardDescription>People who are taking care of you</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {caregivers ? (
+                caregivers.map((caregiver) => (
                   <div
                     key={caregiver.id}
                     className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
                   >
                     <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
                       <span className="text-sm text-purple-700">
-                        {caregiver.name
+                        {caregiver.user.name
                           .split(" ")
                           .map((n) => n[0])
                           .join("")}
                       </span>
                     </div>
                     <div>
-                      <p className="font-medium">{caregiver.name}</p>
+                      <p className="font-medium">{caregiver.user.name}</p>
                       <p className="text-sm text-gray-500">Caregiver</p>
                     </div>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+                ))
+              ) : (
+                <p className="text-gray-500 text-center py-8">
+                  You haven't been assigned to any caregivers yet.
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* New Journal Entry */}
         <Card className="shadow-lg">

@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { apiFetch } from "./index.ts";
-import type { CareRequest, Recipient } from "@/types/users.ts";
+import type { Caregiver, CareRequest, Recipient } from "@/types/users.ts";
 import type { User } from "@/types/auth.ts";
 import { useAuth } from "@/auth/AuthProvider";
 
@@ -34,6 +34,16 @@ export const useUpdateCaregivers = () => {
     },
   });
 };
+
+// ======================
+// Caregivers
+// ======================
+export const useGetCaregiversForRecipient = (recipientId: string) =>
+  useQuery({
+    queryKey: ["caregivers", recipientId],
+    queryFn: () => apiFetch<Caregiver[]>(`/recipients/${recipientId}/caregivers`),
+  });
+
 // ======================
 // Recipients
 // ======================
@@ -43,11 +53,12 @@ export const useGetRecipientsByCaregiver = (caregiverId: string) =>
     queryFn: () =>
       apiFetch<Recipient[]>(`/caregivers/${caregiverId}/recipients`),
   });
-  
+
 export const useGetAllRecipients = (caregiverId?: string) =>
   useQuery({
     queryKey: ["recipients"],
-    queryFn: () => apiFetch<Recipient[]>(`/recipients?caregiverId=${caregiverId}`),
+    queryFn: () =>
+      apiFetch<Recipient[]>(`/recipients?caregiverId=${caregiverId}`),
   });
   
   export const useGetRecipientById = (recipientId: string) => 

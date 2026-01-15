@@ -1,4 +1,5 @@
 import type { UserRole } from "./auth";
+import type { Recipient } from "./users";
 
 export interface Todo {
   id: string;
@@ -18,7 +19,7 @@ export type MoodType = 'happy' | 'sad' | 'neutral' | 'anxious' | 'excited';
 export interface JournalEntry {
   id: string;
   recipientId: string;
-  recipientName: string;
+  recipient: Recipient;
   content: string;
   mood: MoodType;
   createdAt: Date;

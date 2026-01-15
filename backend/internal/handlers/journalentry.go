@@ -69,6 +69,8 @@ func (h JournalHandler) List(c *gin.Context) {
 
 	var entries []models.JournalEntry
 	if err := h.DB.
+		Preload("Recipient").
+		Preload("Recipient.User").
 		Where("recipient_id = ?", recipientID).
 		Order("created_at DESC").
 		Find(&entries).Error; err != nil {
@@ -94,6 +96,8 @@ func (h JournalHandler) ListAccepted(c *gin.Context) {
 
 	var entries []models.JournalEntry
 	if err := h.DB.
+		Preload("Recipient").
+		Preload("Recipient.User").
 		Joins("JOIN caregiver_recipients ON caregiver_recipients.recipient_id = journal_entries.recipient_id").
 		Where("caregiver_recipients.caregiver_id = ?", caregiverID).
 		Order("journal_entries.created_at DESC").
