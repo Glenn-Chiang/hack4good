@@ -96,7 +96,13 @@ func (h CareRequestHandler) ListRecipientRequests(c *gin.Context) {
 
 	status := strings.ToLower(strings.TrimSpace(c.Query("status")))
 
-	q := h.DB.Model(&models.CareRequest{}).Where("recipient_id = ?", recipientID).Order("created_at desc")
+	q := h.DB.Model(&models.CareRequest{}).
+		Preload("Caregiver").
+		Preload("Recipient").
+		Preload("Caregiver.User").
+		Preload("Recipient.User").
+		Where("recipient_id = ?", recipientID).
+		Order("created_at desc")
 	if status != "" {
 		switch models.CareRequestStatus(status) {
 		case models.CareRequestPending, models.CareRequestAccepted, models.CareRequestRejected:

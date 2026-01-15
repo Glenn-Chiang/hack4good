@@ -33,6 +33,11 @@ export const useGetUser = (userId: string) =>
 };
 
 // ======================
+// Caregivers
+// ======================
+
+
+// ======================
 // Recipients
 // ======================
 export const useGetRecipientsByCaregiver = (caregiverId: string) =>
@@ -53,7 +58,7 @@ export const useGetAllRecipients = (caregiverId?: string) =>
       queryKey: ['recipient', recipientId],
       queryFn: () => apiFetch<User>(`/recipients/${recipientId}`),
       enabled: recipientId > 0,
-    });
+  });
   
   export const useGetRecipientByUserId = (userId: string) => 
     useQuery({

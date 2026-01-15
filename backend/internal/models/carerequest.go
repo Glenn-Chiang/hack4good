@@ -15,6 +15,9 @@ type CareRequest struct {
 
 	CaregiverID uint `gorm:"not null;index;uniqueIndex:uniq_request_pair" json:"caregiverId"`
 	RecipientID uint `gorm:"not null;index;uniqueIndex:uniq_request_pair" json:"recipientId"`
+	Caregiver   Caregiver `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:CaregiverID;references:ID" json:"caregiver"`
+	Recipient   Recipient `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:RecipientID;references:ID" json:"recipient"`
+
 	Status      CareRequestStatus `gorm:"type:varchar(20);not null;default:'pending';index" json:"status"`
 
 	CreatedAt time.Time `json:"createdAt"`

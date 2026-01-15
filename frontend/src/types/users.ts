@@ -27,6 +27,8 @@ export interface CareRequest {
   id: string;
   caregiverId: string;
   recipientId: string;
+  caregiver: Caregiver;
+  recipient: Recipient;
   status: CareRequestStatus;
   requestedAt: Date;
   respondedAt?: Date;
