@@ -48,10 +48,10 @@ export const useGetRecipientsByCaregiver = (caregiverId: string) =>
       apiFetch<Recipient[]>(`/caregivers/${caregiverId}/recipients`),
   });
 
-export const useGetAllRecipients = () =>
+export const useGetAllRecipients = (caregiverId?: string) =>
   useQuery({
     queryKey: ["recipients"],
-    queryFn: () => apiFetch<Recipient[]>("/recipients"),
+    queryFn: () => apiFetch<Recipient[]>(`/recipients?caregiverId=${caregiverId}`),
   });
 
 // ======================

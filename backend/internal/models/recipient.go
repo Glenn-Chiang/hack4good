@@ -13,3 +13,9 @@ type Recipient struct {
 	Phobias   *string `gorm:"type:text" json:"phobias"`
 	PetPeeves *string `gorm:"type:text" json:"petPeeves"`
 }
+
+type RecipientWithRequest struct {
+	Recipient
+	RequestStatus *CareRequestStatus `json:"requestStatus"`
+	RequestID *uint `json:"requestId"`
+}

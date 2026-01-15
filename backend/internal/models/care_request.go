@@ -13,8 +13,8 @@ const (
 type CareRequest struct {
 	ID uint `gorm:"primaryKey" json:"id"`
 
-	CaregiverID uint      `gorm:"not null;index" json:"caregiverId"`
-	RecipientID uint      `gorm:"not null;index" json:"recipientId"`
+	CaregiverID uint `gorm:"not null;index;uniqueIndex:uniq_request_pair" json:"caregiverId"`
+	RecipientID uint `gorm:"not null;index;uniqueIndex:uniq_request_pair" json:"recipientId"`
 	Status      CareRequestStatus `gorm:"type:varchar(20);not null;default:'pending';index" json:"status"`
 
 	CreatedAt time.Time `json:"createdAt"`

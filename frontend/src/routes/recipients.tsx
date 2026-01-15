@@ -38,7 +38,7 @@ export function Recipients() {
   const [searchQuery, setSearchQuery] = useState("");
 
   // Filter recipients that are not already assigned to this caregiver
-  const { data: availableRecipients = [] } = useGetAllRecipients();
+  const { data: availableRecipients = [] } = useGetAllRecipients(currentUser?.id);
 
   // Filter based on search query
   const filteredRecipients = availableRecipients.filter((recipient) =>
