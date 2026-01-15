@@ -15,17 +15,11 @@ export const useGetUser = (userId: string) =>
     queryFn: () => apiFetch<User>(`/users/${userId}`),
   });
 
-export const useRecipientFromId = (recipientId: number) =>
-  useQuery({
-    queryKey: ['recipient', recipientId],
-    queryFn: () => apiFetch<User>(`/recipients/${recipientId}`),
-    enabled: recipientId > 0,
-  });
-
-export const useUpdateUser = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
+  
+  export const useUpdateUser = () => {
+    const queryClient = useQueryClient();
+    
+    return useMutation({
     mutationFn: (data: Partial<User> & { id: string }) =>
       apiFetch<User>(`/users/${data.id}`, {
         method: "PUT",
@@ -47,12 +41,25 @@ export const useGetRecipientsByCaregiver = (caregiverId: string) =>
     queryFn: () =>
       apiFetch<Recipient[]>(`/caregivers/${caregiverId}/recipients`),
   });
-
+  
 export const useGetAllRecipients = (caregiverId?: string) =>
   useQuery({
     queryKey: ["recipients"],
     queryFn: () => apiFetch<Recipient[]>(`/recipients?caregiverId=${caregiverId}`),
   });
+
+  export const useGetRecipientById = (recipientId: number) =>
+    useQuery({
+      queryKey: ['recipient', recipientId],
+      queryFn: () => apiFetch<User>(`/recipients/${recipientId}`),
+      enabled: recipientId > 0,
+    });
+  
+  export const useGetRecipientByUserId = (userId: string) => 
+    useQuery({
+      queryKey: ["recipients", userId],
+    queryFn: () => apiFetch<Recipient>(`/recipients/user/${userId}`),
+  })
 
 // ======================
 // Care Requests

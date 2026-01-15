@@ -50,6 +50,7 @@ func main() {
 	r.GET("/recipients", recipientHandler.List)
 	r.GET("/caregivers/:id/recipients", recipientHandler.ListRecipientsByCaregiver)
 	r.GET("/recipients/:id", recipientHandler.GetByID)
+	r.GET("/recipients/user/:userId", recipientHandler.GetByUserID)
 
 	caregiverHandler := handlers.CaregiverHandler{DB: DB}
 	r.GET("/caregivers", caregiverHandler.List)
