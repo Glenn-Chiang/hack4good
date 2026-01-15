@@ -121,7 +121,6 @@ interface JournalEntryCardProps {
 
 function JournalEntryCard({
   entry,
-  recipientId,
   isExpanded,
   onToggleExpand,
   commentText,
