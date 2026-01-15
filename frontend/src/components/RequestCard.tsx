@@ -1,18 +1,18 @@
 import { CheckCircle2, XCircle } from "lucide-react";
 import { Button } from "./ui/button";
-import type { CareRelationship } from "@/types/types";
-import { useRespondToRequest, useGetUser } from "@/api/users";
-import { toast } from "sonner";
+
+import { useRespondToRequest } from "@/api/users";
+import type { CareRequest } from "@/types/users";
 import { format } from "date-fns";
+import { toast } from "sonner";
 
 type RequestCardProps = {
-  request: CareRelationship;
+  request: CareRequest;
 };
 
 export function RequestCard({ request }: RequestCardProps) {
-  const { data: caregiver, isLoading } = useGetUser(request.caregiverId);
   const respondToRequest = useRespondToRequest();
-
+  
   const handleRespondToRequest = (
     requestId: string,
     status: "accepted" | "rejected"
@@ -43,14 +43,14 @@ export function RequestCard({ request }: RequestCardProps) {
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
             <span className="text-blue-700">
-              {caregiver?.name
+              {request.caregiver.user.name
                 .split(" ")
                 .map((n) => n[0])
                 .join("") || "??"}
             </span>
           </div>
           <div>
-            <p className="font-medium">{caregiver?.name || "Unknown"}</p>
+            <p className="font-medium">{request.caregiver.user.name || "Unknown"}</p>
             <p className="text-sm text-gray-500">Wants to be your caregiver</p>
             <p className="text-xs text-gray-400 mt-1">
               Requested {format(request.requestedAt, "MMM d, yyyy")}

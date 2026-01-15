@@ -1,34 +1,4 @@
-// Mock data for the caregiver/recipient app
-
-export type UserRole = 'caregiver' | 'recipient';
-
-export interface User {
-  id: string;
-  name: string;
-  username: string;
-  password: string;
-  role: UserRole;
-  avatar?: string;
-  age?: number;
-  condition?: string;
-  likes?: string; 
-  dislikes?: string;
-  phobias?: string;
-  petPeeves?: string;
-  recipientId?: number;
-  caregiverId?: number;
-}
-
-export type RelationshipStatus = 'pending' | 'accepted' | 'rejected';
-
-export interface CareRelationship {
-  id: string;
-  caregiverId: string;
-  recipientId: string;
-  status: RelationshipStatus;
-  requestedAt: Date;
-  respondedAt?: Date;
-}
+import type { UserRole } from "./auth";
 
 export interface Todo {
   id: string;

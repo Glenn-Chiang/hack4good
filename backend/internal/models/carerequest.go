@@ -20,6 +20,6 @@ type CareRequest struct {
 
 	Status      CareRequestStatus `gorm:"type:varchar(20);not null;default:'pending';index" json:"status"`
 
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	RequestedAt time.Time `json:"requestedAt"`
+	RespondedAt *time.Time `json:"respondedAt"`
 }
