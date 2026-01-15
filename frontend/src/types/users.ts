@@ -4,7 +4,7 @@ export interface Recipient {
   id: string;
   userId: string;
   user: User;
-
+  name:string;
   age?: number;
   condition?: string;
   likes?: string;

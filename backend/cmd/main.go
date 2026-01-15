@@ -33,12 +33,12 @@ func main() {
 	r.Use(gin.Logger(), gin.Recovery())
 
 	r.Use(cors.New(cors.Config{
-	AllowOrigins:     []string{"http://localhost:3000"},
-	AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-	AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
-	ExposeHeaders:    []string{"Content-Length"},
-	AllowCredentials: true,
-	MaxAge:           12 * time.Hour,
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
 	}))
 
 	authHandler := handlers.AuthHandler{DB: DB}
@@ -48,6 +48,7 @@ func main() {
 	recipientHandler := handlers.RecipientHandler{DB: DB}
 	r.GET("/recipients", recipientHandler.List)
 	r.GET("/caregivers/:id/recipients", recipientHandler.ListRecipientsByCaregiver)
+	r.GET("/recipients/:id", recipientHandler.GetByID)
 
 	caregiverHandler := handlers.CaregiverHandler{DB: DB}
 	r.GET("/caregivers", caregiverHandler.List)
@@ -55,14 +56,13 @@ func main() {
 	journalHandler := handlers.JournalHandler{DB: DB}
 	r.POST("/journal-entries", journalHandler.Create)
 	r.GET("/journal-entries", journalHandler.List)
-	r.GET("/journal-entries/:id", journalHandler.GetByID)
+	r.GET("/journal-entries/accepted", journalHandler.ListAccepted)
 	r.PUT("/journal-entries/:id", journalHandler.Update)
 	r.DELETE("/journal-entries/:id", journalHandler.Delete)
 
 	commentHandler := handlers.CommentHandler{DB: DB}
 	r.POST("/comments", commentHandler.Create)
 	r.GET("/comments", commentHandler.List)
-	r.GET("/comments/:id", commentHandler.GetByID)
 	r.PUT("/comments/:id", commentHandler.Update)
 	r.DELETE("/comments/:id", commentHandler.Delete)
 

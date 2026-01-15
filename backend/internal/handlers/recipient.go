@@ -46,3 +46,13 @@ func (h RecipientHandler) ListRecipientsByCaregiver(c *gin.Context) {
 
 	c.JSON(http.StatusOK, recipients)
 }
+
+func (h RecipientHandler) GetByID(c *gin.Context) {
+	id := c.Param("recipientId")
+	var recipient models.Recipient
+	if err := h.DB.Where("id = ?", id).First(&recipient).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Recipient not found"})
+		return
+	}
+	c.JSON(http.StatusOK, recipient)
+}
