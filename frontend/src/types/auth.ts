@@ -5,6 +5,8 @@ export type User = {
   username: string;
   name: string
   role: UserRole;
+  caregiverId?: string;
+  recipientId?: string;
 };
 
 export type LoginResponse = {

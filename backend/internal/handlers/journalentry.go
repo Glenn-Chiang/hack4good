@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -17,19 +18,20 @@ type JournalHandler struct {
 type createJournalEntryRequest struct {
 	RecipientID uint            `json:"recipientId" binding:"required"`
 	Content     string          `json:"content" binding:"required"`
-	Mood        models.MoodType `json:"mood" binding:"required,oneof=happy sad angry anxious"`
+	Mood        models.MoodType `json:"mood" binding:"required,oneof=happy sad neutral excited angry anxious"`
 }
 
 func (h JournalHandler) Create(c *gin.Context) {
+
 	var req createJournalEntryRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Optional: ensure recipient exists
+	// Ensure recipient exists
 	var recipient models.Recipient
-	if err := h.DB.First(&recipient, "id = ?", req.RecipientID).Error; err != nil {
+	if err := h.DB.First(&recipient, req.RecipientID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "recipient not found"})
 			return
@@ -54,14 +56,22 @@ func (h JournalHandler) Create(c *gin.Context) {
 
 func (h JournalHandler) List(c *gin.Context) {
 	recipientIDStr := c.Query("recipientId")
+	if recipientIDStr == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "recipientId is required"})
+		return
+	}
 
-	q := h.DB.Model(&models.JournalEntry{}).Order("created_at desc")
-	if recipientIDStr != "" {
-		q = q.Where("recipient_id = ?", recipientIDStr)
+	var recipientID uint
+	if _, err := fmt.Sscan(recipientIDStr, &recipientID); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid recipientId"})
+		return
 	}
 
 	var entries []models.JournalEntry
-	if err := q.Find(&entries).Error; err != nil {
+	if err := h.DB.
+		Where("recipient_id = ?", recipientID).
+		Order("created_at DESC").
+		Find(&entries).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -69,30 +79,45 @@ func (h JournalHandler) List(c *gin.Context) {
 	c.JSON(http.StatusOK, entries)
 }
 
-func (h JournalHandler) GetByID(c *gin.Context) {
-	id := c.Param("id")
+func (h JournalHandler) ListAccepted(c *gin.Context) {
+	caregiverIDStr := c.Query("caregiverId")
+	if caregiverIDStr == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "caregiverId is required"})
+		return
+	}
 
-	var entry models.JournalEntry
-	if err := h.DB.First(&entry, "id = ?", id).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "journal entry not found"})
-			return
-		}
+	var caregiverID uint
+	if _, err := fmt.Sscan(caregiverIDStr, &caregiverID); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid caregiverId"})
+		return
+	}
+
+	var entries []models.JournalEntry
+	if err := h.DB.
+		Joins("JOIN caregiver_recipients ON caregiver_recipients.recipient_id = journal_entries.recipient_id").
+		Where("caregiver_recipients.caregiver_id = ?", caregiverID).
+		Order("journal_entries.created_at DESC").
+		Find(&entries).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, entry)
+	c.JSON(http.StatusOK, entries)
 }
 
 type updateJournalEntryRequest struct {
-	// pointers so “optional” fields can be omitted safely
 	Content *string          `json:"content"`
 	Mood    *models.MoodType `json:"mood" binding:"omitempty,oneof=happy sad angry anxious"`
 }
 
 func (h JournalHandler) Update(c *gin.Context) {
-	id := c.Param("id")
+	idStr := c.Param("id")
+
+	var id uint
+	if _, err := fmt.Sscan(idStr, &id); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid journal entry id"})
+		return
+	}
 
 	var req updateJournalEntryRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -100,8 +125,15 @@ func (h JournalHandler) Update(c *gin.Context) {
 		return
 	}
 
+	if req.Content == nil && req.Mood == nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "at least one field must be provided",
+		})
+		return
+	}
+
 	var entry models.JournalEntry
-	if err := h.DB.First(&entry, "id = ?", id).Error; err != nil {
+	if err := h.DB.First(&entry, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "journal entry not found"})
 			return
@@ -126,9 +158,15 @@ func (h JournalHandler) Update(c *gin.Context) {
 }
 
 func (h JournalHandler) Delete(c *gin.Context) {
-	id := c.Param("id")
+	idStr := c.Param("id")
 
-	res := h.DB.Delete(&models.JournalEntry{}, "id = ?", id)
+	var id uint
+	if _, err := fmt.Sscan(idStr, &id); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid journal entry id"})
+		return
+	}
+
+	res := h.DB.Delete(&models.JournalEntry{}, id)
 	if res.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": res.Error.Error()})
 		return

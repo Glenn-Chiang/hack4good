@@ -15,6 +15,13 @@ export const useGetUser = (userId: string) =>
     queryFn: () => apiFetch<User>(`/users/${userId}`),
   });
 
+export const useRecipientFromId = (recipientId: number) =>
+  useQuery({
+    queryKey: ['recipient', recipientId],
+    queryFn: () => apiFetch<User>(`/recipients/${recipientId}`),
+    enabled: recipientId > 0,
+  });
+
 export const useUpdateUser = () => {
   const queryClient = useQueryClient();
 

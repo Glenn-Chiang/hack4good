@@ -16,7 +16,7 @@ type CommentHandler struct {
 
 type createCommentRequest struct {
 	JournalEntryID uint   `json:"journalEntryId" binding:"required"`
-	AuthorID       uint   `json:"authorId" binding:"required"` // typically a UserID
+	AuthorID       uint   `json:"authorId" binding:"required"` // UserID
 	Content        string `json:"content" binding:"required"`
 }
 
@@ -66,13 +66,27 @@ func (h CommentHandler) Create(c *gin.Context) {
 func (h CommentHandler) List(c *gin.Context) {
 	journalEntryIDStr := c.Query("journalEntryId")
 
-	q := h.DB.Model(&models.Comment{}).Order("created_at asc")
+	var comments []models.CommentReturned
+
+	q := h.DB.
+		Table("comments").
+		Select(`
+		comments.id,
+		comments.content,
+		comments.author_id,
+		comments.journal_entry_id,
+		comments.created_at,
+		users.role AS author_role,
+		users.name AS author_name
+	`).
+		Joins("JOIN users ON users.id = comments.author_id").
+		Order("comments.created_at ASC")
+
 	if journalEntryIDStr != "" {
-		q = q.Where("journal_entry_id = ?", journalEntryIDStr)
+		q = q.Where("comments.journal_entry_id = ?", journalEntryIDStr)
 	}
 
-	var comments []models.Comment
-	if err := q.Find(&comments).Error; err != nil {
+	if err := q.Scan(&comments).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -80,7 +94,7 @@ func (h CommentHandler) List(c *gin.Context) {
 	c.JSON(http.StatusOK, comments)
 }
 
-func (h CommentHandler) GetByID(c *gin.Context) {
+/**func (h CommentHandler) GetByID(c *gin.Context) {
 	id := c.Param("id")
 
 	var comment models.Comment
@@ -94,7 +108,7 @@ func (h CommentHandler) GetByID(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, comment)
-}
+}**/
 
 type updateCommentRequest struct {
 	Content *string `json:"content"`

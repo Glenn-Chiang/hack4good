@@ -122,6 +122,7 @@ export function RecipientDashboard() {
   });
 
   const handleSubmitJournal = () => {
+    console.log(currentUser?.recipientId);
     if (!journalContent.trim()) {
       toast.error("Please write something in your journal");
       return;
@@ -134,10 +135,9 @@ export function RecipientDashboard() {
 
     addJournalEntry.mutate(
       {
-        recipientId: currentUser?.id || "",
+        recipientId: currentUser?.recipientId || "",
         content: journalContent,
         mood: selectedMood,
-        hasVoiceMessage: showVoiceRecording,
       },
       {
         onSuccess: () => {
@@ -196,10 +196,9 @@ export function RecipientDashboard() {
 
     addCommentMutation.mutate(
       {
-        journalEntryId,
+        journalEntryId: journalEntryId,
         content: comment,
         authorId: currentUser?.id || "",
-        authorRole: "recipient",
       },
       {
         onSuccess: () => {
@@ -633,7 +632,6 @@ function JournalEntryWithComments({
             {comments && comments.length > 0 && (
               <div className="space-y-2">
                 {comments.map((comment) => {
-                  const author = getUserById(comment.authorId);
                   return (
                     <div
                       key={comment.id}
@@ -641,7 +639,7 @@ function JournalEntryWithComments({
                     >
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-sm font-medium">
-                          {author?.name || "Unknown"}
+                          {comment.authorName}
                         </span>
                         <Badge variant="outline" className="text-xs">
                           {comment.authorRole === "caregiver"
