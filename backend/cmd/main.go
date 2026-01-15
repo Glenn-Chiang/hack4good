@@ -48,12 +48,13 @@ func main() {
 
 	recipientHandler := handlers.RecipientHandler{DB: DB}
 	r.GET("/recipients", recipientHandler.List)
-	r.GET("/caregivers/:id/recipients", recipientHandler.ListRecipientsByCaregiver)
+	r.GET("/caregivers/:id/recipients", recipientHandler.ListByCaregiver)
 	r.GET("/recipients/:id", recipientHandler.GetByID)
 	r.GET("/recipients/user/:userId", recipientHandler.GetByUserID)
 
 	caregiverHandler := handlers.CaregiverHandler{DB: DB}
 	r.GET("/caregivers", caregiverHandler.List)
+	r.GET("/recipients/:id/caregivers", caregiverHandler.ListByRecipient)
 
 	careRequestHandler := handlers.CareRequestHandler{DB: DB}
 	r.POST("/requests", careRequestHandler.CreateRequest)

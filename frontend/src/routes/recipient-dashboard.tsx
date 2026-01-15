@@ -23,7 +23,7 @@ import { useAuth } from "@/auth/AuthProvider";
 import {
   useUpdateUser,
   useGetPendingRequestsForRecipient,
-  useCaregiversForRecipient,
+  useGetCaregiversForRecipient,
   useGetRecipientByUserId,
 } from "../api/users";
 import { MoodIcon } from "../components/MoodIcon";
@@ -102,7 +102,9 @@ export function RecipientDashboard() {
   const { data: pendingRequests } = useGetPendingRequestsForRecipient(
     recipient?.id || ""
   );
-  const { data: caregivers } = useCaregiversForRecipient(recipient?.id || "");
+  const { data: caregivers } = useGetCaregiversForRecipient(
+    recipient?.id || ""
+  );
 
   const addJournalEntry = useAddJournalEntry();
   const updateUser = useUpdateUser();
@@ -434,14 +436,14 @@ export function RecipientDashboard() {
                   >
                     <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
                       <span className="text-sm text-purple-700">
-                        {caregiver.name
+                        {caregiver.user.name
                           .split(" ")
                           .map((n) => n[0])
                           .join("")}
                       </span>
                     </div>
                     <div>
-                      <p className="font-medium">{caregiver.name}</p>
+                      <p className="font-medium">{caregiver.user.name}</p>
                       <p className="text-sm text-gray-500">Caregiver</p>
                     </div>
                   </div>

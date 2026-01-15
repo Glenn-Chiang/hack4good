@@ -103,7 +103,7 @@ func (h RecipientHandler) List(c *gin.Context) {
 	c.JSON(http.StatusOK, res)
 }
 
-func (h RecipientHandler) ListRecipientsByCaregiver(c *gin.Context) {
+func (h RecipientHandler) ListByCaregiver(c *gin.Context) {
 	caregiverID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid caregiver id"})
