@@ -45,13 +45,17 @@ import {
 } from "date-fns";
 import { toast } from "sonner";
 import { useAddTodo, useTodos, useToggleTodo } from "@/api/todos";
+import type { Todo } from "@/types/types";
 
 export function TodoList() {
   const { currentUser } = useAuth();
-  const { data: todos, isLoading } = useTodos(currentUser?.id || "");
-  const { data: recipients } = useGetRecipientsByCaregiver(
-    currentUser?.id || ""
-  );
+  const caregiverId = currentUser?.caregiverId
+    ? String(currentUser.caregiverId)
+    : "";
+
+  const { data: todos, isLoading } = useTodos(caregiverId);
+  const { data: recipients } = useGetRecipientsByCaregiver(caregiverId);
+
   const toggleTodo = useToggleTodo();
   const addTodo = useAddTodo();
 
@@ -65,9 +69,10 @@ export function TodoList() {
     priority: "medium" as "low" | "medium" | "high",
   });
 
-  const handleToggleTodo = (todoId: number) => {
-    toggleTodo.mutate(todoId);
+  const handleToggleTodo = (todo: Todo) => {
+    toggleTodo.mutate({ id: todo.id, completed: todo.completed });
   };
+
 
 
  const handleAddTodo = () => {
@@ -76,7 +81,7 @@ export function TodoList() {
      return;
    }
 
-   const caregiverId = Number(currentUser?.id);
+   const caregiverId = Number(currentUser?.caregiverId);
    const recipientId = Number(newTodo.recipientId);
 
    if (!caregiverId || !recipientId) {
@@ -185,8 +190,8 @@ export function TodoList() {
                   </SelectTrigger>
                   <SelectContent>
                     {recipients?.map((recipient) => (
-                      <SelectItem key={recipient.id} value={recipient.id}>
-                        {recipient.name}
+                      <SelectItem key={recipient.id} value={String(recipient.id)}>
+                        {recipient.user.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -215,7 +220,7 @@ export function TodoList() {
                 <Input
                   id="dueDate"
                   type="datetime-local"
-                  value={format(newTodo.dueDate, "yyyy-MM-dd'T'HH:mm")}
+                  value={format(new Date(newTodo.dueDate), "yyyy-MM-dd'T'HH:mm")}
                   onChange={(e) =>
                     setNewTodo({
                       ...newTodo,
@@ -266,7 +271,7 @@ export function TodoList() {
                     >
                       <Checkbox
                         checked={todo.completed}
-                        onCheckedChange={() => handleToggleTodo(todo.id)}
+                        onCheckedChange={() => handleToggleTodo(todo)}
                         className="mt-1"
                       />
                       <div className="flex-1">
@@ -290,9 +295,9 @@ export function TodoList() {
                           </Badge>
                         </div>
                         <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
-                          <span>{recipient?.name}</span>
+                          <span>{recipient?.user.name}</span>
                           <span>
-                            {format(todo.dueDate, "MMM d, yyyy h:mm a")}
+                            {format(new Date(todo.dueDate), "MMM d, yyyy h:mm a")}
                           </span>
                         </div>
                       </div>
@@ -322,15 +327,15 @@ export function TodoList() {
                       >
                         <Checkbox
                           checked={todo.completed}
-                          onCheckedChange={() => handleToggleTodo(todo.id)}
+                          onCheckedChange={() => handleToggleTodo(todo)}
                           className="mt-1"
                         />
                         <div className="flex-1">
                           <p className="text-sm line-through">{todo.title}</p>
                           <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
-                            <span>{recipient?.name}</span>
+                            <span>{recipient?.user.name}</span>
                             <span>
-                              {format(todo.dueDate, "MMM d, yyyy h:mm a")}
+                              {format(new Date(todo.dueDate), "MMM d, yyyy h:mm a")}
                             </span>
                           </div>
                         </div>

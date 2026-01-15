@@ -1,6 +1,6 @@
 import { useAuth } from "@/auth/AuthProvider";
 import { Link } from "@tanstack/react-router";
-import { Clock, Plus, Search, Users } from "lucide-react";
+import { Plus, Search, Users } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
@@ -8,7 +8,6 @@ import {
   useGetRecipientsByCaregiver,
   useSendRequest,
 } from "../api/users";
-import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import {
   Card,

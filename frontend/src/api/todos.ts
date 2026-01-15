@@ -15,24 +15,28 @@ export type CreateTodoInput = {
   priority: "low" | "medium" | "high";
 };
 
-export const useTodos = (caregiverId: string) =>
+export const useTodos = (caregiverId: string, recipientId?: string) =>
   useQuery({
-    queryKey: ["todos", caregiverId],
+    queryKey: ["todos", caregiverId, recipientId],
     enabled: !!caregiverId,
-    queryFn: () => apiFetch<Todo[]>(`/caregivers/${caregiverId}/todos`),
+    queryFn: () => {
+      const qs = new URLSearchParams({ caregiverId });
+      if (recipientId) qs.set("recipientId", recipientId);
+      return apiFetch<Todo[]>(`/todos?${qs.toString()}`);
+    },
   });
+
 
 export const useToggleTodo = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (todoId: number) =>
-      apiFetch<Todo>(`/todos/${todoId}/toggle`, {
-        method: "PATCH",
+    mutationFn: (todo: { id: number; completed: boolean }) =>
+      apiFetch<Todo>(`/todos/${todo.id}`, {
+        method: "PUT",
+        body: JSON.stringify({ completed: !todo.completed }),
       }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["todos"] });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["todos"] }),
   });
 };
 

@@ -3,7 +3,6 @@ import {
   useAddComment,
   useComments,
 } from "@/api/journal";
-import { useGetRecipientById } from "@/api/users";
 import { useAuth } from "@/auth/AuthProvider";
 import { format } from "date-fns";
 import { ChevronDown, ChevronUp, MessageCircle, Mic } from "lucide-react";
@@ -122,7 +121,6 @@ interface JournalEntryCardProps {
 
 function JournalEntryCard({
   entry,
-  recipientId,
   isExpanded,
   onToggleExpand,
   commentText,
