@@ -1,6 +1,6 @@
 import {useEffect, useRef, useState} from "react";
 import {motion} from "motion/react"
-import { Mic } from 'lucide-react';
+import {Mic} from 'lucide-react';
 
 export default function Recorder() {
     const [isRecording, setIsRecording] = useState(false); //recorder on/off
@@ -41,8 +41,7 @@ export default function Recorder() {
             console.error("No media stream found");
             return;
         }
-        const media = new MediaRecorder(stream, {mimeType})
-        mediaRecorderRef.current = media;
+        mediaRecorderRef.current = new MediaRecorder(stream, {mimeType});
         console.log("Actual recorder type:", mediaRecorderRef.current.mimeType);
         setSeconds(0);
         timerRef.current = setInterval(() => {
