@@ -1,14 +1,14 @@
 import { useAuth } from "@/auth/AuthProvider";
 import { Link } from "@tanstack/react-router";
-import { Clock, Plus, Search, Users } from "lucide-react";
+import { Plus, Search, Users } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
   useGetAllRecipients,
+  useGetCaregiverByUserId,
   useGetRecipientsByCaregiver,
   useSendRequest,
 } from "../api/users";
-import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import {
   Card,
@@ -29,8 +29,9 @@ import { Label } from "../components/ui/label";
 
 export function Recipients() {
   const { currentUser } = useAuth();
+  const { data: currentCaregiver } = useGetCaregiverByUserId(currentUser?.id || "")
   const { data: recipients, isLoading } = useGetRecipientsByCaregiver(
-    currentUser?.id || ""
+    currentCaregiver?.id || ""
   );
   const assignRecipient = useSendRequest();
 
@@ -38,7 +39,7 @@ export function Recipients() {
   const [searchQuery, setSearchQuery] = useState("");
 
   // Filter recipients that are not already assigned to this caregiver
-  const { data: availableRecipients = [] } = useGetAllRecipients(currentUser?.id);
+  const { data: availableRecipients = [] } = useGetAllRecipients(currentCaregiver?.id);
 
   // Filter based on search query
   const filteredRecipients = availableRecipients.filter((recipient) =>
@@ -47,7 +48,7 @@ export function Recipients() {
 
   const handleSendRequest = (recipientId: string) => {
     assignRecipient.mutate(
-      { recipientId, caregiverId: currentUser?.id || "" },
+      { recipientId, caregiverId: currentCaregiver?.id || "" },
       {
         onSuccess: () => {
           toast.success("Care request sent! Waiting for recipient to accept.");

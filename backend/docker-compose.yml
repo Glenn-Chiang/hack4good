@@ -5,14 +5,14 @@ services:
     ports:
       - "5432:5432"
     environment:
+      POSTGRES_DB: hack4good
       POSTGRES_USER: devuser
       POSTGRES_PASSWORD: devpassword
-      POSTGRES_DB: hack4good
     volumes:
       - pgdata:/var/lib/postgresql/data
 
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U devuser"]
+      test: ["CMD-SHELL", "pg_isready -U devuser -d hack4good"]
       interval: 10s
       timeout: 5s
       retries: 5  

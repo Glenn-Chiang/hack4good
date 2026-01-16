@@ -431,7 +431,7 @@ export function RecipientDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {caregivers ? (
+              {caregivers && caregivers.length > 0 ? (
                 caregivers.map((caregiver) => (
                   <div
                     key={caregiver.id}

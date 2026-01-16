@@ -82,3 +82,20 @@ func (h CaregiverHandler) ListByRecipient(c *gin.Context) {
 
 	c.JSON(http.StatusOK, caregivers)
 }
+
+func (h CaregiverHandler) GetByUserID(c *gin.Context) {
+	userID64, err := strconv.ParseUint(c.Param("userId"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user id"})
+		return
+	}
+	userID := uint(userID64)
+
+	var caregiver models.Caregiver
+	if err := h.DB.Preload("User").First(&caregiver, "user_id = ?", userID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "caregiver not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, caregiver)
+}

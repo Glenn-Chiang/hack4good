@@ -41,8 +41,16 @@ export const useUpdateCaregivers = () => {
 export const useGetCaregiversForRecipient = (recipientId: string) =>
   useQuery({
     queryKey: ["caregivers", recipientId],
-    queryFn: () => apiFetch<Caregiver[]>(`/recipients/${recipientId}/caregivers`),
+    queryFn: () =>
+      apiFetch<Caregiver[]>(`/recipients/${recipientId}/caregivers`),
+    enabled: !!recipientId,
   });
+
+export const useGetCaregiverByUserId = (userId: string) =>
+  useQuery({
+    queryKey: ["caregivers", userId],
+    queryFn: () => apiFetch<Caregiver>(`/caregivers/user/${userId}`),
+});
 
 // ======================
 // Recipients
@@ -52,6 +60,7 @@ export const useGetRecipientsByCaregiver = (caregiverId: string) =>
     queryKey: ["recipients", caregiverId],
     queryFn: () =>
       apiFetch<Recipient[]>(`/caregivers/${caregiverId}/recipients`),
+    enabled: !!caregiverId,
   });
 
 export const useGetAllRecipients = (caregiverId?: string) =>
@@ -59,6 +68,7 @@ export const useGetAllRecipients = (caregiverId?: string) =>
     queryKey: ["recipients"],
     queryFn: () =>
       apiFetch<Recipient[]>(`/recipients?caregiverId=${caregiverId}`),
+    enabled: !!caregiverId,
   });
   
   export const useGetRecipientById = (recipientId: string) => 
@@ -110,7 +120,7 @@ export const useGetPendingRequestsForRecipient = (recipientId: string) =>
       apiFetch<CareRequest[]>(
         `/recipients/${recipientId}/requests?status=pending`
       ),
-      enabled: recipientId !== "",
+    enabled: !!recipientId,
   });
 
 export const useRespondToRequest = () => {

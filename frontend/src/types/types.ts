@@ -2,13 +2,13 @@ import type { UserRole } from "./auth";
 import type { Recipient } from "./users";
 
 export interface Todo {
-  id: string;
+  id: number;
   title: string;
   description: string;
   dueDate: string;
   completed: boolean;
-  recipientId: string;
-  caregiverId: string;
+  recipientId: number;
+  caregiverId: number;
   priority: 'low' | 'medium' | 'high';
   createdAt: string;
   updatedAt: string;

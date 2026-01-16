@@ -1,20 +1,67 @@
-import {useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {motion} from "motion/react"
-import { Mic } from 'lucide-react';
+import {Mic} from 'lucide-react';
 
 export default function Recorder() {
     const [isRecording, setIsRecording] = useState(false); //recorder on/off
     const [seconds, setSeconds] = useState(0);
-    const [isRecorded, setIsRecorded] = useState(false); //stuff was recorded
+    const [permission, setPermission] = useState(false);
+    const [stream, setStream] = useState<MediaStream | null>(null);
+    const [audioUrl, setAudioUrl] = useState<string | null>(null);
+
+    const timerRef = useRef<NodeJS.Timeout | null>(null);
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+
+    const mimeType = MediaRecorder.isTypeSupported("audio/webm")
+        ? "audio/webm"
+        : MediaRecorder.isTypeSupported("audio/mp4")
+            ? "audio/mp4"
+            : "audio/wav";
+
+    useEffect(() => {
+        const requestPermission = async () => {
+            try {
+                const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                setStream(mediaStream);
+                setPermission(true);
+            } catch (err) {
+                console.error("Microphone permission denied");
+                setPermission(false);
+            }
+        };
+
+        if (!stream && !permission) {
+            requestPermission();
+        }
+    }, [stream]);
+
     const startRecording = async() => {
         setIsRecording(true);
+        if (!stream) {
+            console.error("No media stream found");
+            return;
+        }
+        mediaRecorderRef.current = new MediaRecorder(stream, {mimeType});
+        console.log("Actual recorder type:", mediaRecorderRef.current.mimeType);
         setSeconds(0);
-        const timer = setInterval(() => {
+        timerRef.current = setInterval(() => {
             setSeconds(prev => prev + 1)}, 1000);
-        return () => clearInterval(timer);
+        mediaRecorderRef.current.ondataavailable = (event) => {
+            if (typeof event.data === "undefined") return;
+            if (event.data.size === 0) return;
+            setAudioUrl(URL.createObjectURL(event.data));
+        }
+        mediaRecorderRef.current.start();
     }
     const stopRecording = async() => {
+        if (mediaRecorderRef.current && isRecording) {
+            mediaRecorderRef.current.stop();
+        }
         setIsRecording(false);
+        if (timerRef.current) {
+            clearInterval(timerRef.current);
+            timerRef.current = null;
+        }
     }
     const formatTime = (totalSeconds: number) => {
         const hours = Math.floor(totalSeconds / 3600);
@@ -22,6 +69,12 @@ export default function Recorder() {
         const secs = totalSeconds % 60;
         return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(secs).padStart(2,"0")}`
     }
+
+    useEffect(() => {
+        return () => {
+            if (timerRef.current) clearInterval(timerRef.current);
+        };
+    }, []);
 
     return (
         <>
@@ -47,7 +100,7 @@ export default function Recorder() {
                             ? [
                                 '0 0 0 0 rgba(239, 68, 68, 0.7)',
                                 '0 0 0 20px rgba(239, 68, 68, 0)',
-                                '0 0 0 0 rgba(239, 68, 68, 0)',
+                                '0 0 0 0 rgba(239, 68, 68, 0.7)',
                             ]
                             : '0 0 0 0 rgba(0,0,0,0)'
                     }}
@@ -56,7 +109,7 @@ export default function Recorder() {
                         backgroundColor: { duration: 0.3 },
                         boxShadow: isRecording
                             ? { duration: 1.5, repeat: Infinity, ease: 'easeInOut' }
-                            : { duration: 0, ease: 'easeInOut' },
+                            : { duration: 0.1, ease: 'easeIn' },
                     }}
                 >
                     <motion.div
@@ -66,7 +119,7 @@ export default function Recorder() {
                         transition={{
                             duration: 1,
                             repeat: Infinity,
-                            ease: 'easeInOut'
+                            ease: 'easeOut'
                         }}
                     >
                         <Mic className="w-16 h-16 p-4 text-white" />
@@ -88,6 +141,14 @@ export default function Recorder() {
                             Voice recording will be included when you save your journal entry
                         </p>
                     </motion.div>
+                )}
+                {audioUrl && (
+                    <audio className="mt-4" src={audioUrl} controls/>
+                )}
+                {!permission && (
+                    <p>
+                        Please enable microphone permissions
+                    </p>
                 )}
             </div>
         </>

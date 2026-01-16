@@ -3,8 +3,8 @@ import {
   useAddComment,
   useComments,
 } from "@/api/journal";
-import { useGetRecipientById } from "@/api/users";
 import { useAuth } from "@/auth/AuthProvider";
+import type { JournalEntry } from "@/types/types";
 import { format } from "date-fns";
 import { ChevronDown, ChevronUp, MessageCircle, Mic } from "lucide-react";
 import { useState } from "react";
@@ -18,7 +18,6 @@ import {
   CardTitle,
 } from "../components/ui/card";
 import { Textarea } from "../components/ui/textarea";
-import type { JournalEntry } from "@/types/types";
 
 export function Journal() {
   const { currentUser } = useAuth();
@@ -94,7 +93,6 @@ export function Journal() {
             <JournalEntryCard
               key={entry.id}
               entry={entry}
-              recipientId={entry.recipientId}
               isExpanded={isExpanded}
               onToggleExpand={() => toggleExpand(entry.id)}
               commentText={commentText[entry.id] || ""}
@@ -112,7 +110,6 @@ export function Journal() {
 
 interface JournalEntryCardProps {
   entry: JournalEntry;
-  recipientId: string;
   isExpanded: boolean;
   onToggleExpand: () => void;
   commentText: string;
@@ -122,7 +119,6 @@ interface JournalEntryCardProps {
 
 function JournalEntryCard({
   entry,
-  recipientId,
   isExpanded,
   onToggleExpand,
   commentText,
@@ -130,7 +126,6 @@ function JournalEntryCard({
   onAddComment,
 }: JournalEntryCardProps) {
   const { data: comments } = useComments(entry.id);
-  const { data: recipient } = useGetRecipientById(recipientId);
 
   return (
     <Card>

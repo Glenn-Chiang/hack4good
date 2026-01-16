@@ -104,7 +104,7 @@ func (h CareRequestHandler) ListRecipientRequests(c *gin.Context) {
 		Preload("Caregiver.User").
 		Preload("Recipient.User").
 		Where("recipient_id = ?", recipientID).
-		Order("created_at desc")
+		Order("requested_at desc")
 	if status != "" {
 		switch models.CareRequestStatus(status) {
 		case models.CareRequestPending, models.CareRequestAccepted, models.CareRequestRejected:
