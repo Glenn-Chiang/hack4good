@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 import { useJournalEntries } from '@/api/journal'
 import { Link, useParams } from '@tanstack/react-router'
 import { useGetRecipientById } from '../api/users'
+=======
+import { Link } from "@tanstack/react-router";
+import { useGetRecipientById } from "../api/users";
+import { useJournalEntries } from "@/api/journal";
+>>>>>>> 36fe87104460fd55673941aed286d2c7994accb8
 
 import { useTodos } from '@/api/todos'
 import { useAuth } from '@/auth/AuthProvider'

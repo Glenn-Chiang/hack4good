@@ -14,8 +14,30 @@ type Recipient struct {
 	PetPeeves *string `gorm:"type:text" json:"petPeeves"`
 }
 
+type RecipientRequest struct {
+	Name      *string `json:"name"` // goes to users table
+	Age       *int    `json:"age"`
+	Condition *string `json:"condition"`
+	Likes     *string `json:"likes"`
+	Dislikes  *string `json:"dislikes"`
+	Phobias   *string `json:"phobias"`
+	PetPeeves *string `json:"petPeeves"`
+}
+
+type RecipientReturned struct {
+	ID     uint   `json:"id"`
+	UserID uint   `json:"userId"`
+	Name   string `json:"name"`
+
+	Age       *int    `json:"age"`
+	Condition *string `json:"condition"`
+	Likes     *string `json:"likes"`
+	Dislikes  *string `json:"dislikes"`
+	Phobias   *string `json:"phobias"`
+	PetPeeves *string `json:"petPeeves"`
+}
 type RecipientWithRequest struct {
 	Recipient
 	RequestStatus *CareRequestStatus `json:"requestStatus"`
-	RequestID *uint `json:"requestId"`
+	RequestID     *uint              `json:"requestId"`
 }
