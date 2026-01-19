@@ -16,6 +16,7 @@ import (
 func main() {
 	_ = godotenv.Load()
 
+	createUploadFolder()
 	DB := db.Connect()
 
 	if err := DB.AutoMigrate(
@@ -67,6 +68,8 @@ func main() {
 	journalHandler := handlers.JournalHandler{DB: DB}
 	r.POST("/journal-entries", journalHandler.Create)
 	r.GET("/journal-entries", journalHandler.List)
+	r.POST("/journal-entries/upload", journalHandler.UploadAudio)
+	r.Static("/uploads", "./uploads")
 	r.GET("/journal-entries/accepted", journalHandler.ListAccepted)
 	r.PUT("/journal-entries/:id", journalHandler.Update)
 	r.DELETE("/journal-entries/:id", journalHandler.Delete)
@@ -90,7 +93,7 @@ func main() {
 }
 
 func createUploadFolder() {
-    if err := os.MkdirAll("uploads", 0755); err != nil {
-        panic("Unable to create uploads folder: " + err.Error();
-    }
+	if err := os.MkdirAll("uploads", 0755); err != nil {
+		panic("Unable to create uploads folder: " + err.Error())
+	}
 }

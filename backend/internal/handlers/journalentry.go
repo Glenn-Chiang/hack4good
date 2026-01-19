@@ -186,26 +186,25 @@ func (h JournalHandler) Delete(c *gin.Context) {
 }
 
 func (h JournalHandler) UploadAudio(c *gin.Context) {
-    file, err := c.FormFile("file")
-    if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "file is required"})
-        return
-    }
+	file, err := c.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "file is required"})
+		return
+	}
 
-    // Save to ./uploads/
+	// Save to ./uploads/
 
-    uploadPath := "uploads/" + file.Filename
+	uploadPath := "uploads/" + file.Filename
 
-    if err := c.SaveUploadedFile(file, uploadPath); err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-        return
-    }
+	if err := c.SaveUploadedFile(file, uploadPath); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error uploading": err.Error()})
+		return
+	}
 
-    // The URL that frontend can load
-    fileURL := "/uploads/" + file.Filename
+	// The URL that frontend can load
+	fileURL := "/uploads/" + file.Filename
 
-    c.JSON(http.StatusOK, gin.H{
-        "url": fileURL,
-    })
+	c.JSON(http.StatusOK, gin.H{
+		"url": fileURL,
+	})
 }
-
