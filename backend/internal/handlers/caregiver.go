@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"hack4good/internal/models"
 	"net/http"
 	"strconv"
@@ -21,7 +22,42 @@ func (h CaregiverHandler) List(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, caregivers)
 }
- 
+
+func (h CaregiverHandler) Update(c *gin.Context) {
+	userIDStr := c.Param("id")
+
+	var userID uint
+	if _, err := fmt.Sscan(userIDStr, &userID); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user id"})
+		return
+	}
+
+	var req models.UpdateUserNameRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	result := h.DB.Model(&models.User{}).
+		Where("id = ?", userID).
+		Update("name", req.Name)
+
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+		return
+	}
+
+	if result.RowsAffected == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"id":   userID,
+		"name": req.Name,
+	})
+}
+
 func (h CaregiverHandler) ListByRecipient(c *gin.Context) {
 	recipientID64, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {

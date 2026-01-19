@@ -10,6 +10,7 @@ import { type LoginResponse, type User } from "@/types/auth";
 interface AuthContextType {
   currentUser: User | null;
   storeAuth: (res: LoginResponse) => void;
+  updateUser: (updates: Partial<User>) => void;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -47,11 +48,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setCurrentUser(null);
   };
 
+  const updateUser = (updates: Partial<User>) => {
+    setCurrentUser((prev) => (prev ? { ...prev, ...updates } : prev));
+  };
+
   return (
     <AuthContext.Provider
       value={{
         currentUser,
         storeAuth: login,
+        updateUser,
         logout,
         isAuthenticated: !!currentUser,
       }}

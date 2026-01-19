@@ -11,9 +11,11 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { User } from "lucide-react";
 import { toast } from "sonner@2.0.3";
+import { useUpdateCaregivers } from "@/api/users";
 
 export function CaregiverProfile() {
-  const { currentUser, updateUser } = useAuth();
+  const { currentUser } = useAuth();
+  const { mutate: updateUser } = useUpdateCaregivers();
   const [name, setName] = useState(currentUser?.name || "");
   const [isEditing, setIsEditing] = useState(false);
 

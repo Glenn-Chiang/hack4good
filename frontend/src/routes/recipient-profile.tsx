@@ -1,46 +1,43 @@
-import { Link, useParams } from "@tanstack/react-router";
-import { useGetUser } from "../api/users";
-import { useJournalEntries } from "@/api/journal";
+import { useJournalEntries } from '@/api/journal'
+import { Link, useParams } from '@tanstack/react-router'
+import { useGetRecipientById } from '../api/users'
 
+import { useTodos } from '@/api/todos'
+import { useAuth } from '@/auth/AuthProvider'
+import { format } from 'date-fns'
+import { ArrowLeft, BookOpen, Calendar, CheckSquare } from 'lucide-react'
+import { MoodIcon } from '../components/MoodIcon'
+import { Badge } from '../components/ui/badge'
+import { Button } from '../components/ui/button'
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
-} from "../components/ui/card";
-import { Button } from "../components/ui/button";
-import { Badge } from "../components/ui/badge";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "../components/ui/tabs";
-import { MoodIcon } from "../components/MoodIcon";
-import { ArrowLeft, CheckSquare, BookOpen, Calendar } from "lucide-react";
-import { format } from "date-fns";
-import { useAuth } from "@/auth/AuthProvider";
-import { useTodos } from "@/api/todos";
+} from '../components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs'
 
 export function RecipientProfile() {
-  const { recipientId } = useParams({ from: "/recipients/$recipientId" });
-  const { data: recipient, isLoading: userLoading } = useGetUser(recipientId);
-  const { data: allTodos } = useTodos(String(currentUser?.id || ""));
-  const rid = Number(recipientId);
-    
-  const { data: journalEntries } = useJournalEntries(recipientId);
+  const { currentUser } = useAuth()
+  const { recipientId } = useParams({ from: '/recipients/$recipientId' })
+  const { data: recipient, isLoading: userLoading } =
+    useGetRecipientById(recipientId)
+  const { data: allTodos } = useTodos(String(currentUser?.id || ''))
+  const rid = Number(recipientId)
 
-  const recipientTodos = allTodos?.filter((t) => t.recipientId === rid) || [];
-  const activeTodos = recipientTodos.filter((t) => !t.completed);
-  const completedTodos = recipientTodos.filter((t) => t.completed);
+  const { data: journalEntries } = useJournalEntries(recipientId)
+
+  const recipientTodos = allTodos?.filter((t) => t.recipientId === rid) || []
+  const activeTodos = recipientTodos.filter((t) => !t.completed)
+  const completedTodos = recipientTodos.filter((t) => t.completed)
 
   if (userLoading) {
-    return <div>Loading...</div>;
+    return <div>Loading...</div>
   }
 
   if (!recipient) {
-    return <div>Recipient not found</div>;
+    return <div>Recipient not found</div>
   }
 
   return (
@@ -61,14 +58,14 @@ export function RecipientProfile() {
           <div className="flex items-center gap-4">
             <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center">
               <span className="text-2xl text-blue-700">
-                {recipient.name
-                  .split(" ")
+                {recipient.user.name
+                  .split(' ')
                   .map((n) => n[0])
-                  .join("")}
+                  .join('')}
               </span>
             </div>
             <div className="flex-1">
-              <CardTitle className="text-2xl">{recipient.name}</CardTitle>
+              <CardTitle className="text-2xl">{recipient.user.name}</CardTitle>
               <p className="text-gray-500">{recipient.age} years old</p>
             </div>
           </div>
@@ -78,7 +75,7 @@ export function RecipientProfile() {
             <div>
               <p className="text-sm text-gray-500 mb-1">Condition</p>
               <p className="text-sm">
-                {recipient.condition || "Not specified"}
+                {recipient.condition || 'Not specified'}
               </p>
             </div>
             <div>
@@ -187,7 +184,7 @@ export function RecipientProfile() {
                       </div>
                       <Badge
                         variant={
-                          todo.priority === "high" ? "destructive" : "secondary"
+                          todo.priority === 'high' ? 'destructive' : 'secondary'
                         }
                       >
                         {todo.priority}
@@ -195,7 +192,7 @@ export function RecipientProfile() {
                     </div>
                     <p className="text-xs text-gray-500 mt-2">
                       <Calendar className="w-3 h-3 inline mr-1" />
-                      {format(todo.dueDate, "MMM d, yyyy h:mm a")}
+                      {format(todo.dueDate, 'MMM d, yyyy h:mm a')}
                     </p>
                   </div>
                 ))}
@@ -220,7 +217,7 @@ export function RecipientProfile() {
                         {todo.title}
                       </p>
                       <p className="text-xs text-gray-500 mt-2">
-                        {format(todo.dueDate, "MMM d, yyyy h:mm a")}
+                        {format(todo.dueDate, 'MMM d, yyyy h:mm a')}
                       </p>
                     </div>
                   ))}
@@ -248,7 +245,7 @@ export function RecipientProfile() {
                   <div key={entry.id} className="p-4 border rounded-lg">
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-sm text-gray-500">
-                        {format(entry.createdAt, "MMM d, yyyy h:mm a")}
+                        {format(entry.createdAt, 'MMM d, yyyy h:mm a')}
                       </span>
                       <MoodIcon mood={entry.mood} showLabel />
                     </div>
@@ -261,5 +258,5 @@ export function RecipientProfile() {
         </TabsContent>
       </Tabs>
     </div>
-  );
+  )
 }

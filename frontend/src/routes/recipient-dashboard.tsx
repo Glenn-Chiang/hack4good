@@ -21,10 +21,10 @@ import {
 } from "../components/ui/dialog";
 import { useAuth } from "@/auth/AuthProvider";
 import {
-  useUpdateUser,
   useGetPendingRequestsForRecipient,
+  useGetRecipientById,
+  useUpdateRecipient,
   useGetCaregiversForRecipient,
-  useGetRecipientByUserId,
 } from "../api/users";
 import { MoodIcon } from "../components/MoodIcon";
 import type { MoodType } from "../types/types";
@@ -97,7 +97,9 @@ const moodOptions: {
 
 export function RecipientDashboard() {
   const { currentUser, logout } = useAuth();
-  const { data: recipient } = useGetRecipientByUserId(currentUser?.id || "");
+  const { data: recipient } = useGetRecipientById(
+    currentUser?.recipientId || ""
+  );
 
   const { data: journalEntries } = useJournalEntries(recipient?.id || "");
   const { data: pendingRequests } = useGetPendingRequestsForRecipient(
@@ -108,7 +110,7 @@ export function RecipientDashboard() {
   );
 
   const addJournalEntry = useAddJournalEntry();
-  const updateUser = useUpdateUser();
+  const updateRecipient = useUpdateRecipient();
   const addCommentMutation = useAddComment();
 
   const [journalContent, setJournalContent] = useState("");
@@ -120,16 +122,15 @@ export function RecipientDashboard() {
   );
   const [commentText, setCommentText] = useState<Record<string, string>>({});
   const [profileData, setProfileData] = useState({
-    name: currentUser?.name || "",
-    condition: currentUser?.condition || "",
-    likes: currentUser?.likes || "",
-    dislikes: currentUser?.dislikes || "",
-    phobias: currentUser?.phobias || "",
-    petPeeves: currentUser?.petPeeves || "",
+    name: recipient?.name || "",
+    condition: recipient?.condition || "",
+    likes: recipient?.likes || "",
+    dislikes: recipient?.dislikes || "",
+    phobias: recipient?.phobias || "",
+    petPeeves: recipient?.petPeeves || "",
   });
 
   const handleSubmitJournal = () => {
-    console.log(currentUser?.recipientId);
     if (!journalContent.trim()) {
       toast.error("Please write something in your journal");
       return;
@@ -158,14 +159,15 @@ export function RecipientDashboard() {
   };
 
   const handleUpdateProfile = () => {
+    console.log(recipient);
     if (!profileData.name.trim()) {
       toast.error("Name cannot be empty");
       return;
     }
 
-    updateUser.mutate(
+    updateRecipient.mutate(
       {
-        id: currentUser?.id || "",
+        id: recipient?.id || "",
         name: profileData.name,
         condition: profileData.condition,
         likes: profileData.likes,
@@ -178,7 +180,7 @@ export function RecipientDashboard() {
           toast.success("Profile updated successfully!");
           setIsProfileDialogOpen(false);
           // Update the auth context would happen here in real app
-          window.location.reload(); // Simple refresh for mock data
+          // window.location.reload(); // Simple refresh for mock data
         },
       }
     );
@@ -225,7 +227,7 @@ export function RecipientDashboard() {
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
                 <span className="text-lg text-purple-700">
-                  {currentUser?.name
+                  {recipient?.name
                     .split(" ")
                     .map((n) => n[0])
                     .join("")}
@@ -233,7 +235,7 @@ export function RecipientDashboard() {
               </div>
               <div>
                 <h1 className="text-xl">
-                  Hello, {currentUser?.name.split(" ")[0]}
+                  Hello, {recipient?.name.split(" ")[0]}
                 </h1>
                 <p className="text-sm text-gray-500">
                   How are you feeling today?
@@ -250,12 +252,12 @@ export function RecipientDashboard() {
                     variant="outline"
                     onClick={() =>
                       setProfileData({
-                        name: currentUser?.name || "",
-                        condition: currentUser?.condition || "",
-                        likes: currentUser?.likes || "",
-                        dislikes: currentUser?.dislikes || "",
-                        phobias: currentUser?.phobias || "",
-                        petPeeves: currentUser?.petPeeves || "",
+                        name: recipient?.name || "",
+                        condition: recipient?.condition || "",
+                        likes: recipient?.likes || "",
+                        dislikes: recipient?.dislikes || "",
+                        phobias: recipient?.phobias || "",
+                        petPeeves: recipient?.petPeeves || "",
                       })
                     }
                   >
@@ -380,7 +382,7 @@ export function RecipientDashboard() {
                     <Button
                       onClick={handleUpdateProfile}
                       className="w-full text-lg py-6"
-                      disabled={updateUser.isPending}
+                      disabled={updateRecipient.isPending}
                     >
                       Save Profile
                     </Button>

@@ -14,3 +14,7 @@ type User struct {
 	Name         string   `gorm:"not null" json:"name"`
 	Role         UserRole `gorm:"type:varchar(20);not null" json:"role"`
 }
+
+type UpdateUserNameRequest struct {
+	Name string `json:"name" binding:"required"`
+}

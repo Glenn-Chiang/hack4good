@@ -5,28 +5,32 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "./index.ts";
 import type { Caregiver, CareRequest, Recipient } from "@/types/users.ts";
 import type { User } from "@/types/auth.ts";
+import { useAuth } from "@/auth/AuthProvider";
 
 // ======================
 // Users
 // ======================
-export const useGetUser = (userId: string) =>
-  useQuery({
-    queryKey: ["user", userId],
-    queryFn: () => apiFetch<User>(`/users/${userId}`),
-  });
 
-export const useUpdateUser = () => {
+
+
+// ======================
+// Caregivers
+// ======================
+
+export const useUpdateCaregivers = () => {
   const queryClient = useQueryClient();
+  const { updateUser } = useAuth();
 
   return useMutation({
     mutationFn: (data: Partial<User> & { id: string }) =>
-      apiFetch<User>(`/users/${data.id}`, {
+      apiFetch<User>(`/caregivers/${data.id}`, {
         method: "PUT",
         body: JSON.stringify(data),
       }),
     onSuccess: (user) => {
       queryClient.invalidateQueries({ queryKey: ["user", user.id] });
       queryClient.invalidateQueries({ queryKey: ["recipients"] });
+      updateUser({ name: user.name });
     },
   });
 };
@@ -66,19 +70,29 @@ export const useGetAllRecipients = (caregiverId?: string) =>
       apiFetch<Recipient[]>(`/recipients?caregiverId=${caregiverId}`),
     enabled: !!caregiverId,
   });
+  
+  export const useGetRecipientById = (recipientId: string) => 
+    useQuery({
+      queryKey: ["recipients", recipientId],
+      queryFn: () => apiFetch<Recipient>(`/recipients/${recipientId}`),
+      enabled: recipientId !== "",
+    })
 
-export const useGetRecipientById = (recipientId: string) =>
-  useQuery({
-    queryKey: ["recipient", recipientId],
-    queryFn: () => apiFetch<Recipient>(`/recipients/${recipientId}`),
-    enabled: !!recipientId,
-  });
-
-export const useGetRecipientByUserId = (userId: string) =>
-  useQuery({
-    queryKey: ["recipients", userId],
-    queryFn: () => apiFetch<Recipient>(`/recipients/user/${userId}`),
-  });
+  export const useUpdateRecipient = () => {
+    const queryClient = useQueryClient();
+    const { updateUser } = useAuth();
+    return useMutation({
+      mutationFn: (data: Partial<Recipient> & { id: string }) =>
+        apiFetch<Recipient>(`/recipients/${data.id}`, {
+          method: "PUT",
+          body: JSON.stringify(data),
+        }),
+      onSuccess: (recipient) => {
+        queryClient.invalidateQueries({ queryKey: ['recipients', recipient.id] });
+        updateUser({ name: recipient.name });
+      },
+    });
+  };
 
 // ======================
 // Care Requests
@@ -128,3 +142,10 @@ export const useRespondToRequest = () => {
     },
   });
 };
+
+export const useCaregiversForRecipient = (recipientId: string) =>
+  useQuery({
+    queryKey: ["caregivers", recipientId],
+    queryFn: () => apiFetch<User[]>(`/recipients/${recipientId}/caregivers`),
+    enabled: recipientId !== "",
+  });

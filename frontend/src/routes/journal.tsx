@@ -93,7 +93,6 @@ export function Journal() {
             <JournalEntryCard
               key={entry.id}
               entry={entry}
-              recipientId={entry.recipientId}
               isExpanded={isExpanded}
               onToggleExpand={() => toggleExpand(entry.id)}
               commentText={commentText[entry.id] || ""}
@@ -111,7 +110,6 @@ export function Journal() {
 
 interface JournalEntryCardProps {
   entry: JournalEntry;
-  recipientId: string;
   isExpanded: boolean;
   onToggleExpand: () => void;
   commentText: string;
