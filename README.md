@@ -56,5 +56,5 @@ VITE_API_BASE_URL=http://localhost:8080
 Frontend will start on something like:
 
 ```
-http://localhost:5173
+http://localhost:3000
 ```
