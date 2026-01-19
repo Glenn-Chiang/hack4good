@@ -12,12 +12,10 @@ export default function Recorder() {
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 
-    const mimeType = MediaRecorder.isTypeSupported("audio/webm")
-        ? "audio/webm"
-        : MediaRecorder.isTypeSupported("audio/mp4")
-            ? "audio/mp4"
-            : "audio/wav";
-
+    const options = {
+        mimeType: "audio/mp4",
+        audioBitsPerSecond: 128_000, // 128 kbps
+    };
     useEffect(() => {
         const requestPermission = async () => {
             try {
@@ -41,8 +39,7 @@ export default function Recorder() {
             console.error("No media stream found");
             return;
         }
-        mediaRecorderRef.current = new MediaRecorder(stream, {mimeType});
-        console.log("Actual recorder type:", mediaRecorderRef.current.mimeType);
+        mediaRecorderRef.current = new MediaRecorder(stream, options);
         setSeconds(0);
         timerRef.current = setInterval(() => {
             setSeconds(prev => prev + 1)}, 1000);
