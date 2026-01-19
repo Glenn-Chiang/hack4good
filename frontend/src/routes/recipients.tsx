@@ -108,15 +108,15 @@ export function Recipients() {
                 {filteredRecipients.length === 0 && (
                   <p className="text-center text-gray-500 py-8">
                     {searchQuery
-                      ? "No recipients found matching your search"
-                      : "No available recipients"}
+                      ? 'No recipients found matching your search'
+                      : 'No available recipients'}
                   </p>
                 )}
                 {filteredRecipients.map((recipient) => {
                   const disabled =
                     assignRecipient.isPending ||
-                    recipient.requestStatus === "accepted" ||
-                    recipient.requestStatus === "pending";
+                    recipient.requestStatus === 'accepted' ||
+                    recipient.requestStatus === 'pending'
                   return (
                     <Card
                       key={recipient.id}
@@ -128,9 +128,9 @@ export function Recipients() {
                             <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
                               <span className="text-blue-700">
                                 {recipient.user.name
-                                  .split(" ")
+                                  .split(' ')
                                   .map((n) => n[0])
-                                  .join("")}
+                                  .join('')}
                               </span>
                             </div>
                             <div>
@@ -149,16 +149,16 @@ export function Recipients() {
                             disabled={disabled}
                             size="sm"
                           >
-                            {recipient.requestStatus === "pending"
-                              ? "Pending"
-                              : recipient.requestStatus === "accepted"
-                              ? "Accepted"
-                              : "Send Request"}
+                            {recipient.requestStatus === 'pending'
+                              ? 'Pending'
+                              : recipient.requestStatus === 'accepted'
+                                ? 'Accepted'
+                                : 'Send Request'}
                           </Button>
                         </div>
                       </CardContent>
                     </Card>
-                  );
+                  )
                 })}
               </div>
             </div>
@@ -177,9 +177,9 @@ export function Recipients() {
                 <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
                   <span className="text-xl text-blue-700">
                     {recipient.user.name
-                      .split(" ")
+                      .split(' ')
                       .map((n) => n[0])
-                      .join("")}
+                      .join('')}
                   </span>
                 </div>
                 <div className="flex-1">
@@ -196,10 +196,13 @@ export function Recipients() {
               <div>
                 <p className="text-sm text-gray-500">Condition</p>
                 <p className="text-sm">
-                  {recipient.condition || "Not specified"}
+                  {recipient.condition || 'Not specified'}
                 </p>
               </div>
-              <Link to={`/recipients/${recipient.id}`}>
+              <Link
+                to="/recipients/$recipientId"
+                params={{ recipientId: String(recipient.id) }}
+              >
                 <Button className="w-full">View Profile</Button>
               </Link>
             </CardContent>
@@ -220,5 +223,5 @@ export function Recipients() {
         )}
       </div>
     </div>
-  );
+  )
 }
