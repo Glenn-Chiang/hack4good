@@ -5,6 +5,7 @@ import (
 	"hack4good/internal/handlers"
 	"hack4good/internal/models"
 	"log"
+	"os"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -83,7 +84,11 @@ func main() {
 	r.PUT("/todos/:id", todoHandler.Update)
 	r.DELETE("/todos/:id", todoHandler.Delete)
 
-	if err := r.Run(":8080"); err != nil {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	if err := r.Run("0.0.0.0:" + port); err != nil {
 		log.Fatalf("server failed: %v", err)
 	}
 }
