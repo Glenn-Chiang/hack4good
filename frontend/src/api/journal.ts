@@ -29,6 +29,7 @@ export const useAddJournalEntry = () => {
       recipientId: string;
       content: string;
       mood: MoodType;
+      audioUrl: string | null;
     }) =>
       apiFetch<JournalEntry>(`/journal-entries`, {
         method: "POST",

@@ -1,9 +1,13 @@
 package handlers
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
+	"path/filepath"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -193,18 +197,41 @@ func (h JournalHandler) UploadAudio(c *gin.Context) {
 	}
 
 	// Save to ./uploads/
+	randomName, err := GenerateUniqueFilename("./uploads", ".mp4")
 
-	uploadPath := "uploads/" + file.Filename
+	if err != nil {
+		c.JSON(500, gin.H{"error": "could not generate unique filename"})
+		return
+	}
 
-	if err := c.SaveUploadedFile(file, uploadPath); err != nil {
+	uploadPath := "uploads/" + randomName
+
+	if err = c.SaveUploadedFile(file, uploadPath); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error uploading": err.Error()})
 		return
 	}
 
 	// The URL that frontend can load
-	fileURL := "/uploads/" + file.Filename
+	fileURL := "/uploads/" + randomName
 
 	c.JSON(http.StatusOK, gin.H{
 		"url": fileURL,
 	})
+}
+func GenerateUniqueFilename(folder, ext string) (string, error) {
+	for i := 0; i < 10; i++ { // try up to 10 times
+		b := make([]byte, 8) // 8 bytes → 16 hex chars
+		_, err := rand.Read(b)
+		if err != nil {
+			return "", err
+		}
+
+		filename := hex.EncodeToString(b) + ext
+		fullPath := filepath.Join(folder, filename)
+
+		if _, err := os.Stat(fullPath); os.IsNotExist(err) {
+			return filename, nil // unique!
+		}
+	}
+	return "", fmt.Errorf("failed to generate a unique filename after 10 tries")
 }

@@ -2,7 +2,9 @@ import {useEffect, useRef, useState} from "react";
 import {motion} from "motion/react"
 import {Mic} from 'lucide-react';
 
-export default function Recorder() {
+export default function Recorder({ onAudioReady }: {
+    onAudioReady?: (blob: Blob) => void
+}) {
     const [isRecording, setIsRecording] = useState(false); //recorder on/off
     const [seconds, setSeconds] = useState(0);
     const [permission, setPermission] = useState(false);
@@ -33,12 +35,22 @@ export default function Recorder() {
         }
     }, [stream]);
 
+    /* unmount?
+    useEffect(() => {
+        return () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        };
+    }, [stream]); */
+
     const startRecording = async() => {
         setIsRecording(true);
         if (!stream) {
             console.error("No media stream found");
             return;
         }
+        if (audioUrl) URL.revokeObjectURL(audioUrl);
         mediaRecorderRef.current = new MediaRecorder(stream, options);
         setSeconds(0);
         timerRef.current = setInterval(() => {
@@ -47,6 +59,9 @@ export default function Recorder() {
             if (typeof event.data === "undefined") return;
             if (event.data.size === 0) return;
             setAudioUrl(URL.createObjectURL(event.data));
+            if (event.data) {
+                if (onAudioReady) onAudioReady(event.data);
+            }
         }
         mediaRecorderRef.current.start();
     }

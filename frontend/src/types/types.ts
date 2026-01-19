@@ -24,7 +24,7 @@ export interface JournalEntry {
   mood: MoodType;
   createdAt: Date;
   hasVoiceMessage: boolean;
-  voiceMessageUrl?: string;
+  audioUrl?: string;
 }
 
 export interface Comment {

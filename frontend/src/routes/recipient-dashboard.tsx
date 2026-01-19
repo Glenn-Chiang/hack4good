@@ -53,7 +53,8 @@ import {
   useAddComment,
   useComments,
 } from "@/api/journal";
-import Recorder from "@/components/Recorder.tsx";
+import Recorder from "@/components/Recorder";
+import {apiFetch} from "@/api";
 
 const moodOptions: {
   type: MoodType;
@@ -116,6 +117,7 @@ export function RecipientDashboard() {
   const [journalContent, setJournalContent] = useState("");
   const [selectedMood, setSelectedMood] = useState<MoodType | null>(null);
   const [showVoiceRecording, setShowVoiceRecording] = useState(false);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
   const [expandedEntries, setExpandedEntries] = useState<Set<string>>(
     new Set()
@@ -130,8 +132,9 @@ export function RecipientDashboard() {
     petPeeves: recipient?.petPeeves || "",
   });
 
-  const handleSubmitJournal = () => {
-    if (!journalContent.trim()) {
+  const handleSubmitJournal = async () => {
+
+    if (!journalContent.trim() && !audioBlob) {
       toast.error("Please write something in your journal");
       return;
     }
@@ -141,11 +144,23 @@ export function RecipientDashboard() {
       return;
     }
 
+    let newUrl: string | null = null;
+
+    try {
+      if (audioBlob) {
+        console.log(audioBlob.type);
+        newUrl = await uploadAudio(audioBlob);
+      }
+    } catch (e) {
+      console.error("failed to upload", e)
+    }
+
     addJournalEntry.mutate(
       {
         recipientId: currentUser?.recipientId || "",
         content: journalContent,
         mood: selectedMood,
+        audioUrl: newUrl,
       },
       {
         onSuccess: () => {
@@ -217,6 +232,35 @@ export function RecipientDashboard() {
       }
     );
   };
+  interface UploadResponse {
+    url: string;
+  }
+
+  async function uploadAudio(blob: Blob): Promise<string> {
+    const formData = new FormData();
+    formData.append("file", blob, `recording-${Date.now()}.mp4`);
+    for (let [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
+
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+    const res = await fetch(`${BACKEND_URL}/journal-entries/upload`, {  // Add your base URL
+      method: "POST",
+      body: formData,
+      // DON'T set Content-Type - let browser handle it
+    });
+
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.error || 'Upload failed');
+    }
+
+    const data = await res.json() as UploadResponse;
+
+    return data.url; // This is the public URL (S3/GCS/etc)
+  }
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50">
@@ -512,7 +556,10 @@ export function RecipientDashboard() {
 
             {/* Voice Message Option */}
             <div>
-              <Recorder />
+              <Recorder onAudioReady={(objBlob) => {
+                setAudioBlob(objBlob);
+                console.log(audioBlob);
+              }}/>
             </div>
 
             {/* Submit Button */}
