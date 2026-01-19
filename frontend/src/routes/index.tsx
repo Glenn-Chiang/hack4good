@@ -19,19 +19,17 @@ import { format } from 'date-fns'
 import { MoodIcon } from '../components/MoodIcon'
 
 export function Dashboard() {
-   const { currentUser } = useAuth()
+  const { currentUser } = useAuth()
 
-   const caregiverId = currentUser?.caregiverId
-     ? String(currentUser.caregiverId)
-     : ''
+  const { data: caregiver } = useGetCaregiverByUserId(currentUser?.id || '')
 
-   const { data: recipients, isLoading: recipientsLoading } =
-     useGetRecipientsByCaregiver(caregiverId)
+  const { data: recipients, isLoading: recipientsLoading } =
+    useGetRecipientsByCaregiver(caregiver?.id || '')
 
-   const { data: todos, isLoading: todosLoading } = useTodos(caregiverId)
+  const { data: todos, isLoading: todosLoading } = useTodos(caregiver?.id || '')
 
-   const { data: journalEntries, isLoading: journalLoading } =
-     useAcceptedJournalEntries(caregiverId)
+  const { data: journalEntries, isLoading: journalLoading } =
+    useAcceptedJournalEntries(caregiver?.id || '')
 
   const urgentTodos =
     todos?.filter((t) => !t.completed && t.priority === 'high') || []
