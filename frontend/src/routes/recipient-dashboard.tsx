@@ -97,7 +97,11 @@ const moodOptions: {
 
 export function RecipientDashboard() {
   const { currentUser, logout } = useAuth()
-  const { data: recipient } = useGetRecipientById(currentUser?.id || '')
+    const recipientId = currentUser?.recipientId
+      ? String(currentUser.recipientId)
+      : ''
+
+    const { data: recipient } = useGetRecipientById(recipientId)
   const { data: journalEntries } = useJournalEntries(recipient?.id || '')
   const { data: pendingRequests } = useGetPendingRequestsForRecipient(
     recipient?.id || '',
