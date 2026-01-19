@@ -25,6 +25,7 @@ import {
   useGetRecipientById,
   useUpdateRecipient,
   useGetCaregiversForRecipient,
+  useGetRecipientByUserId,
 } from '../api/users'
 import { MoodIcon } from '../components/MoodIcon'
 import type { MoodType } from '../types/types'
@@ -97,11 +98,8 @@ const moodOptions: {
 
 export function RecipientDashboard() {
   const { currentUser, logout } = useAuth()
-    const recipientId = currentUser?.recipientId
-      ? String(currentUser.recipientId)
-      : ''
+  const { data: recipient } = useGetRecipientByUserId(currentUser?.id || '')
 
-    const { data: recipient } = useGetRecipientById(recipientId)
   const { data: journalEntries } = useJournalEntries(recipient?.id || '')
   const { data: pendingRequests } = useGetPendingRequestsForRecipient(
     recipient?.id || '',
