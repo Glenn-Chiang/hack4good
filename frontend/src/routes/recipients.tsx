@@ -33,6 +33,7 @@ export function Recipients() {
   const { data: recipients, isLoading } = useGetRecipientsByCaregiver(
     currentCaregiver?.id || ""
   );
+  console.log(currentCaregiver)
   const assignRecipient = useSendRequest();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -63,7 +64,7 @@ export function Recipients() {
     );
   };
 
-  if (isLoading) {
+  if (!recipients || isLoading) {
     return <div>Loading...</div>;
   }
 

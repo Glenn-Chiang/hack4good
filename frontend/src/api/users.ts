@@ -38,7 +38,7 @@ export const useUpdateCaregivers = () => {
 // ======================
 export const useGetCaregiversForRecipient = (recipientId: string) =>
   useQuery({
-    queryKey: ['caregivers', recipientId],
+    queryKey: ['recipients', recipientId, 'caregivers'],
     queryFn: () =>
       apiFetch<Caregiver[]>(`/recipients/${recipientId}/caregivers`),
     enabled: !!recipientId,
@@ -46,8 +46,9 @@ export const useGetCaregiversForRecipient = (recipientId: string) =>
 
 export const useGetCaregiverByUserId = (userId: string) =>
   useQuery({
-    queryKey: ['caregivers', userId],
+    queryKey: ['caregivers', 'user', userId],
     queryFn: () => apiFetch<Caregiver>(`/caregivers/user/${userId}`),
+    enabled: !!userId,
   })
 
 // ======================
@@ -55,7 +56,7 @@ export const useGetCaregiverByUserId = (userId: string) =>
 // ======================
 export const useGetRecipientsByCaregiver = (caregiverId: string) =>
   useQuery({
-    queryKey: ['recipients', caregiverId],
+    queryKey: ['caregivers', caregiverId, 'recipients'],
     queryFn: () =>
       apiFetch<Recipient[]>(`/caregivers/${caregiverId}/recipients`),
     enabled: !!caregiverId,
@@ -78,7 +79,7 @@ export const useGetRecipientById = (recipientId: string) =>
 
 export const useGetRecipientByUserId = (userId: string) =>
   useQuery({
-    queryKey: ['recipients', userId],
+    queryKey: ['recipients', 'user', userId],
     queryFn: () => apiFetch<Recipient>(`/recipients/user/${userId}`),
     enabled: userId !== '',
   })
