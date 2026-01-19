@@ -58,14 +58,14 @@ export function RecipientProfile() {
           <div className="flex items-center gap-4">
             <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center">
               <span className="text-2xl text-blue-700">
-                {recipient.user.name
+                {recipient.name
                   .split(' ')
                   .map((n) => n[0])
                   .join('')}
               </span>
             </div>
             <div className="flex-1">
-              <CardTitle className="text-2xl">{recipient.user.name}</CardTitle>
+              <CardTitle className="text-2xl">{recipient.name}</CardTitle>
               <p className="text-gray-500">{recipient.age} years old</p>
             </div>
           </div>
