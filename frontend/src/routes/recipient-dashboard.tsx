@@ -96,8 +96,12 @@ const moodOptions: {
   },
 ]
 
+
+
+
 export function RecipientDashboard() {
   const { currentUser, logout } = useAuth()
+  const [logoutOpen, setLogoutOpen] = useState(false)
   const { data: recipient } = useGetRecipientByUserId(currentUser?.id || '')
 
   const { data: journalEntries } = useJournalEntries(recipient?.id || '')
@@ -384,7 +388,7 @@ export function RecipientDashboard() {
                   </div>
                 </DialogContent>
               </Dialog>
-              <Button variant="ghost" onClick={logout}>
+              <Button variant="ghost" onClick={() => setLogoutOpen(true)}>
                 <LogOut className="w-4 h-4 mr-2" />
                 Logout
               </Button>
@@ -559,6 +563,32 @@ export function RecipientDashboard() {
           </CardContent>
         </Card>
       </main>
+      <Dialog open={logoutOpen} onOpenChange={setLogoutOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Log out?</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to log out of your account?
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex justify-end gap-2 mt-4">
+            <Button variant="outline" onClick={() => setLogoutOpen(false)}>
+              Cancel
+            </Button>
+
+            <Button
+              variant="destructive"
+              onClick={() => {
+                setLogoutOpen(false)
+                logout()
+              }}
+            >
+              Log out
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
