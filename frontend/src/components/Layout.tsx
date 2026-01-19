@@ -1,28 +1,35 @@
-import { type ReactNode } from "react";
-import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, CheckSquare, BookOpen, Users, LogOut, User } from "lucide-react";
-import { useAuth } from "@/auth/AuthProvider";
-import { Button } from "./ui/button";
+import { useState, type ReactNode } from 'react'
+import { Link, useRouterState } from '@tanstack/react-router'
+import { Home, CheckSquare, BookOpen, Users, LogOut, User } from 'lucide-react'
+import { useAuth } from '@/auth/AuthProvider'
+import { Button } from './ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from './ui/dialog'
 
 interface LayoutProps {
-  children: ReactNode;
+  children: ReactNode
 }
 
 export function Layout({ children }: LayoutProps) {
-  const router = useRouterState();
-  const currentPath = router.location.pathname;
-  const { currentUser, logout } = useAuth();
+  const router = useRouterState()
+  const currentPath = router.location.pathname
+  const { currentUser, logout } = useAuth()
 
-  const isActive = (path: string) => currentPath === path;
+  const [logoutOpen, setLogoutOpen] = useState(false)
+
+  const isActive = (path: string) => currentPath === path
 
   const initials =
     currentUser?.name
-      ?.split(" ")
+      ?.split(' ')
       .filter(Boolean)
       .map((n) => n[0])
-      .join("") || "";
-
-  const firstName = currentUser?.name?.split(" ").filter(Boolean)[0] || "";
+      .join('') || ''
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -37,7 +44,7 @@ export function Layout({ children }: LayoutProps) {
               <div>
                 <h1 className="text-xl">CareConnect</h1>
                 <p className="text-sm text-gray-500">
-                  {currentUser?.name} •{" "}
+                  {currentUser?.name} •{' '}
                   {String(currentUser?.role).charAt(0).toUpperCase() +
                     String(currentUser?.role).slice(1)}
                 </p>
@@ -45,7 +52,7 @@ export function Layout({ children }: LayoutProps) {
             </div>
 
             <div className="flex gap-2">
-              {currentUser?.role === "caregiver" && (
+              {currentUser?.role === 'caregiver' && (
                 <Link to="/caregiver-profile">
                   <Button variant="outline">
                     <User className="w-4 h-4 mr-2" />
@@ -53,7 +60,8 @@ export function Layout({ children }: LayoutProps) {
                   </Button>
                 </Link>
               )}
-              <Button variant="ghost" onClick={logout}>
+
+              <Button variant="ghost" onClick={() => setLogoutOpen(true)}>
                 <LogOut className="w-4 h-4 mr-2" />
                 Logout
               </Button>
@@ -69,9 +77,9 @@ export function Layout({ children }: LayoutProps) {
             <Link
               to="/"
               className={`flex items-center gap-2 py-4 px-3 border-b-2 transition-colors ${
-                isActive("/")
-                  ? "border-blue-600 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700"
+                isActive('/')
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
             >
               <Home className="w-5 h-5" />
@@ -81,9 +89,9 @@ export function Layout({ children }: LayoutProps) {
             <Link
               to="/todos"
               className={`flex items-center gap-2 py-4 px-3 border-b-2 transition-colors ${
-                isActive("/todos")
-                  ? "border-blue-600 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700"
+                isActive('/todos')
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
             >
               <CheckSquare className="w-5 h-5" />
@@ -93,9 +101,9 @@ export function Layout({ children }: LayoutProps) {
             <Link
               to="/journal"
               className={`flex items-center gap-2 py-4 px-3 border-b-2 transition-colors ${
-                isActive("/journal")
-                  ? "border-blue-600 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700"
+                isActive('/journal')
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
             >
               <BookOpen className="w-5 h-5" />
@@ -105,10 +113,10 @@ export function Layout({ children }: LayoutProps) {
             <Link
               to="/recipients"
               className={`flex items-center gap-2 py-4 px-3 border-b-2 transition-colors ${
-                isActive("/recipients") ||
-                currentPath.startsWith("/recipients/")
-                  ? "border-blue-600 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700"
+                isActive('/recipients') ||
+                currentPath.startsWith('/recipients/')
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
             >
               <Users className="w-5 h-5" />
@@ -122,6 +130,34 @@ export function Layout({ children }: LayoutProps) {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {children}
       </main>
+
+      {/* Logout Confirmation Dialog */}
+      <Dialog open={logoutOpen} onOpenChange={setLogoutOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Log out?</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to log out of your account?
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex justify-end gap-2 mt-4">
+            <Button variant="outline" onClick={() => setLogoutOpen(false)}>
+              Cancel
+            </Button>
+
+            <Button
+              variant="destructive"
+              onClick={() => {
+                setLogoutOpen(false)
+                logout()
+              }}
+            >
+              Log out
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
-  );
+  )
 }
