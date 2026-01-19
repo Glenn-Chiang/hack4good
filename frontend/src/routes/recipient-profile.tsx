@@ -1,6 +1,6 @@
 import { useJournalEntries } from '@/api/journal'
 import { Link, useParams } from '@tanstack/react-router'
-import { useGetRecipientById } from '../api/users'
+import { useGetCaregiverByUserId, useGetRecipientById } from '../api/users'
 
 import { useTodos } from '@/api/todos'
 import { useAuth } from '@/auth/AuthProvider'
@@ -20,15 +20,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs'
 
 export function RecipientProfile() {
   const { currentUser } = useAuth()
+  const { data: caregiver } = useGetCaregiverByUserId(currentUser?.id || '')
   const { recipientId } = useParams({ from: '/recipients/$recipientId' })
   const { data: recipient, isLoading: userLoading } =
     useGetRecipientById(recipientId)
-  const { data: allTodos } = useTodos(String(currentUser?.id || ''))
+  const { data: todos } = useTodos(caregiver?.id || '', recipientId)
   const rid = Number(recipientId)
 
   const { data: journalEntries } = useJournalEntries(recipientId)
 
-  const recipientTodos = allTodos?.filter((t) => t.recipientId === rid) || []
+  const recipientTodos = todos?.filter((t) => t.recipientId === rid) || []
   const activeTodos = recipientTodos.filter((t) => !t.completed)
   const completedTodos = recipientTodos.filter((t) => t.completed)
 
