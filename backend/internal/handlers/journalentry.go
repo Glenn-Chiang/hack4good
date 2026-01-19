@@ -19,6 +19,7 @@ type createJournalEntryRequest struct {
 	RecipientID uint            `json:"recipientId" binding:"required"`
 	Content     string          `json:"content" binding:"required"`
 	Mood        models.MoodType `json:"mood" binding:"required,oneof=happy sad neutral excited angry anxious"`
+	AudioUrl    string          `json:"audiourl"`
 }
 
 func (h JournalHandler) Create(c *gin.Context) {
@@ -44,6 +45,7 @@ func (h JournalHandler) Create(c *gin.Context) {
 		RecipientID: req.RecipientID,
 		Content:     req.Content,
 		Mood:        req.Mood,
+		AudioUrl:    req.AudioUrl,
 	}
 
 	if err := h.DB.Create(&entry).Error; err != nil {
@@ -182,3 +184,28 @@ func (h JournalHandler) Delete(c *gin.Context) {
 
 	c.Status(http.StatusNoContent)
 }
+
+func (h JournalHandler) UploadAudio(c *gin.Context) {
+    file, err := c.FormFile("file")
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "file is required"})
+        return
+    }
+
+    // Save to ./uploads/
+
+    uploadPath := "uploads/" + file.Filename
+
+    if err := c.SaveUploadedFile(file, uploadPath); err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    // The URL that frontend can load
+    fileURL := "/uploads/" + file.Filename
+
+    c.JSON(http.StatusOK, gin.H{
+        "url": fileURL,
+    })
+}
+

@@ -5,6 +5,7 @@ import (
 	"hack4good/internal/handlers"
 	"hack4good/internal/models"
 	"log"
+	"os"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -86,4 +87,10 @@ func main() {
 	if err := r.Run(":8080"); err != nil {
 		log.Fatalf("server failed: %v", err)
 	}
+}
+
+func createUploadFolder() {
+    if err := os.MkdirAll("uploads", 0755); err != nil {
+        panic("Unable to create uploads folder: " + err.Error();
+    }
 }
