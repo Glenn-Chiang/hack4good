@@ -222,7 +222,7 @@ export function RecipientDashboard() {
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
                 <span className="text-lg text-purple-700">
-                  {recipient?.name
+                  {recipient?.user.name
                     .split(' ')
                     .map((n) => n[0])
                     .join('')}
@@ -230,7 +230,7 @@ export function RecipientDashboard() {
               </div>
               <div>
                 <h1 className="text-xl">
-                  Hello, {recipient?.name.split(' ')[0]}
+                  Hello, {recipient?.user.name.split(' ')[0]}
                 </h1>
                 <p className="text-sm text-gray-500">
                   How are you feeling today?
