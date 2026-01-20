@@ -144,13 +144,13 @@ export function RecipientDashboard() {
     try {
       if (audioBlob) {
         newUrl = await uploadAudio(audioBlob);
+        setAudioBlob(null);
         console.log(newUrl);
       }
     } catch (e) {
       console.error("failed to upload", e)
     }
 
-    console.log(newUrl);
     addJournalEntry.mutate(
       {
         recipientId: currentUser?.recipientId || '',
@@ -546,9 +546,7 @@ export function RecipientDashboard() {
 
             {/* Voice Message Option */}
             <div>
-              <Recorder onAudioReady={(objBlob) => {
-                setAudioBlob(objBlob);
-              }}/>
+              <Recorder blob={audioBlob} setBlob={setAudioBlob}/>
             </div>
 
             {/* Submit Button */}

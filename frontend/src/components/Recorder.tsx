@@ -2,8 +2,10 @@ import {useEffect, useRef, useState} from "react";
 import {motion} from "motion/react"
 import {Mic} from 'lucide-react';
 
-export default function Recorder({ onAudioReady }: {
-    onAudioReady?: (blob: Blob) => void
+export default function Recorder({blob, setBlob}:
+{
+    blob: Blob | null;
+    setBlob: React.Dispatch<React.SetStateAction<Blob | null>>;
 }) {
     const [isRecording, setIsRecording] = useState(false); //recorder on/off
     const [seconds, setSeconds] = useState(0);
@@ -60,7 +62,7 @@ export default function Recorder({ onAudioReady }: {
             if (event.data.size === 0) return;
             setAudioUrl(URL.createObjectURL(event.data));
             if (event.data) {
-                if (onAudioReady) onAudioReady(event.data);
+                setBlob(event.data)
             }
         }
         mediaRecorderRef.current.start();
@@ -154,7 +156,7 @@ export default function Recorder({ onAudioReady }: {
                         </p>
                     </motion.div>
                 )}
-                {audioUrl && (
+                {blob && audioUrl && (
                     <audio className="mt-4" src={audioUrl} controls/>
                 )}
                 {!permission && (
