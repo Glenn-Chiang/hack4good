@@ -100,6 +100,7 @@ const moodOptions: {
 
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+const url = 'https://api.cloudinary.com/v1_1/dadjstkpa/video/upload';
 
 export function RecipientDashboard() {
   const { currentUser, logout } = useAuth()
@@ -122,15 +123,7 @@ export function RecipientDashboard() {
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false)
   const [expandedEntries, setExpandedEntries] = useState<Set<string>>(new Set())
   const [commentText, setCommentText] = useState<Record<string, string>>({})
-  const [journalContent, setJournalContent] = useState("");
-  const [selectedMood, setSelectedMood] = useState<MoodType | null>(null);
-  const [showVoiceRecording, setShowVoiceRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
-  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
-  const [expandedEntries, setExpandedEntries] = useState<Set<string>>(
-    new Set()
-  );
-  const [commentText, setCommentText] = useState<Record<string, string>>({});
   const [profileData, setProfileData] = useState({
     name: recipient?.name || '',
     condition: recipient?.condition || '',
@@ -140,7 +133,7 @@ export function RecipientDashboard() {
     petPeeves: recipient?.petPeeves || '',
   })
 
-  const handleSubmitJournal = () => {
+  const handleSubmitJournal = async () => {
     if (!journalContent.trim()) {
       toast.error('Please write something in your journal')
       return
@@ -239,33 +232,28 @@ export function RecipientDashboard() {
       }
     );
   };
-  interface UploadResponse {
-    url: string;
-  }
 
-  async function uploadAudio(blob: Blob): Promise<string> {
+  async function uploadAudio(blob: Blob): Promise<string | null> {
+    const filename = `recording-${Date.now()}.mp4`;
+    let returnurl: string | null = null
+
+    // Upload directly to Vercel Blob
     const formData = new FormData();
-    formData.append("file", blob, `recording-${Date.now()}.mp4`);
-    for (let [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
-
-
-    const res = await fetch(`${BACKEND_URL}/journal-entries/upload`, {  // Add your base URL
-      method: "POST",
-      body: formData,
-      // DON'T set Content-Type - let browser handle it
-    });
-
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.error || 'Upload failed');
-    }
-
-    const data = await res.json() as UploadResponse;
-
-    return data.url; // This is the public URL (S3/GCS/etc)
+    formData.append("file", blob, filename);
+    formData.append('upload_preset', 'hack4good');
+    console.log(url);
+    fetch(url, {
+      method: 'POST',
+      body: formData
+    }).then( (response) => {
+      return response.json();
+    }).then((data) => {
+      console.log(data);
+      returnurl = data.url;
+    })
+    return returnurl;
   }
+
 
 
   return (
@@ -598,9 +586,7 @@ export function RecipientDashboard() {
                   your first entry above!
                 </p>
               )}
-              {journalEntries?.slice(0, 10).map((entry) => {
-                  console.log(entry);
-                  return (
+              {journalEntries?.slice(0, 10).map((entry) => (
                 <JournalEntryWithComments
                   key={entry.id}
                   entry={entry}
@@ -613,7 +599,7 @@ export function RecipientDashboard() {
                   onAddComment={() => handleAddComment(entry.id)}
                   currentUserId={currentUser?.id || ''}
                 />
-              )})}
+              ))}
             </div>
           </CardContent>
         </Card>
