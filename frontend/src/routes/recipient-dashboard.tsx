@@ -143,7 +143,6 @@ export function RecipientDashboard() {
 
     try {
       if (audioBlob) {
-        console.log(audioBlob.type);
         newUrl = await uploadAudio(audioBlob);
       }
     } catch (e) {
@@ -169,7 +168,6 @@ export function RecipientDashboard() {
   }
 
   const handleUpdateProfile = () => {
-    console.log(recipient)
     if (!profileData.name.trim()) {
       toast.error('Name cannot be empty')
       return
@@ -236,14 +234,12 @@ export function RecipientDashboard() {
     const formData = new FormData();
     formData.append("file", blob, filename);
     formData.append('upload_preset', 'hack4good');
-    console.log(url);
     fetch(url, {
       method: 'POST',
       body: formData
     }).then( (response) => {
       return response.json();
     }).then((data) => {
-      console.log(data);
       returnurl = data.url;
     })
     return returnurl;
@@ -659,6 +655,7 @@ function JournalEntryWithComments({
         <MoodIcon mood={entry.mood} showLabel />
       </div>
       <p className="text-gray-700 mb-3">{entry.content}</p>
+
       {entry.audioUrl && (
         <div className="mb-3 flex items-center gap-2 text-sm text-purple-600">
           <Mic className="w-4 h-4" />
