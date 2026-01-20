@@ -1,4 +1,24 @@
-# hack4good
+# CareConnect
+
+## Features
+CareConnect is a caregiving support platform that connects caregivers and recipients through a request-and-accept workflow. 
+Key features include:
+
+- **Care request & acceptance workflow**
+  - Caregivers send care requests and recipients can accept or reject them, ensuring consent and trust from the start before access is granted.
+
+- **Recipient profiles (likes, dislikes, phobias, pet peeves, condition, age)**
+  - Helps caregivers better understand the recipient’s personality and needs, enabling more thoughtful and personalized care.
+
+- **Recipient journal entries**
+  - Gives recipients a safe, structured way to express feelings and document daily experiences, improving emotional support and strengthening caregiver-recipient rapport.
+
+- **Caregiver comments on journal entries**
+  - Enables caregivers to respond, encourage, and communicate directly within the recipient’s updates, fostering connection and reassurance.
+
+- **Caregiver todo / task management**
+  - Allows caregivers to track and manage care-related responsibilities (with priority and due dates), reducing missed tasks and improving day-to-day coordination.
+
 
 ## Backend Setup
 
