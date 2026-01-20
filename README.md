@@ -1,4 +1,7 @@
 # CareConnect
+## Problem Statement
+TSAO 2 - Caregivers
+Develop a solution that improves relationships between caregiver and the care recipient so that caregivers can provide the care that the care recipients want/need in a mutually respectful, meaningful and joyful way.
 
 ## Features
 CareConnect is a caregiving support platform that connects caregivers and recipients through a request-and-accept workflow. 
